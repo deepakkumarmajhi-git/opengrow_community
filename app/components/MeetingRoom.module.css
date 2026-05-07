@@ -11,8 +11,9 @@
   width: min(560px, 100%);
   padding: 32px;
   border: 1px solid var(--border-primary);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   background: var(--bg-secondary);
+  box-shadow: var(--shadow-md);
   text-align: center;
 }
 
@@ -53,10 +54,9 @@
 
 .previewShell {
   min-height: 100vh;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent 34%),
-    var(--bg-primary);
+  background: var(--bg-primary);
   padding: 28px;
+  overflow-x: hidden;
 }
 
 .previewHeader {
@@ -105,7 +105,7 @@
 
 .previewGrid {
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(360px, 520px);
+  grid-template-columns: minmax(0, 0.9fr) minmax(min(100%, 360px), 520px);
   gap: 44px;
   align-items: center;
   max-width: 1180px;
@@ -148,11 +148,11 @@
 }
 
 .topicRow span {
-  padding: 8px 12px;
+  padding: 10px 14px;
   border: 1px solid var(--border-primary);
   border-radius: var(--radius-sm);
   color: var(--text-secondary);
-  background: var(--bg-card);
+  background: var(--bg-tertiary);
   font-size: 13px;
   font-weight: 700;
 }
@@ -160,14 +160,23 @@
 .prejoinCard {
   position: relative;
   overflow: hidden;
+  min-width: 0;
   border: 1px solid var(--border-secondary);
-  border-radius: var(--radius-md);
-  background: #111113;
-  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-lg);
+  background: var(--bg-secondary);
+  box-shadow: var(--shadow-md);
 }
 
 .prejoinCard :global(.lk-prejoin) {
   min-height: 580px;
+  max-width: 100%;
+}
+
+.prejoinCard :global(.lk-video-container),
+.prejoinCard :global(.lk-device-menu),
+.prejoinCard :global(.lk-button),
+.prejoinCard :global(input) {
+  max-width: 100%;
 }
 
 .prejoinCard :global(.lk-button) {
@@ -181,8 +190,8 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  background: rgba(10, 10, 10, 0.72);
-  color: white;
+  background: rgba(251, 250, 247, 0.86);
+  color: var(--text-primary);
   font-weight: 700;
 }
 
@@ -193,16 +202,16 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: #080808;
-  color: white;
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .minimized {
   inset: auto 20px 20px auto;
   width: min(420px, calc(100vw - 32px));
   height: 280px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: var(--radius-md);
+  border: 1px solid var(--border-secondary);
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
 }
 
@@ -213,11 +222,12 @@
   justify-content: space-between;
   gap: 16px;
   padding: 0 20px;
-  border-bottom: 1px solid #202020;
-  background: rgba(15, 15, 15, 0.98);
+  border-bottom: 1px solid var(--border-primary);
+  background: var(--bg-secondary);
 }
 
 .meetingTitleBlock {
+  flex: 1;
   min-width: 0;
 }
 
@@ -235,7 +245,7 @@
   align-items: center;
   gap: 8px;
   overflow: hidden;
-  color: #a1a1aa;
+  color: var(--text-secondary);
   font-size: 12px;
 }
 
@@ -253,14 +263,16 @@
   height: 4px;
   margin-right: 8px;
   border-radius: 999px;
-  background: #444;
+  background: var(--border-secondary);
   vertical-align: middle;
 }
 
 .meetingActions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 8px;
+  min-width: 0;
 }
 
 .iconButton,
@@ -270,10 +282,10 @@
   justify-content: center;
   gap: 8px;
   height: 38px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--border-primary);
   border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.07);
-  color: white;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
   cursor: pointer;
   font-size: 13px;
   font-weight: 700;
@@ -286,25 +298,25 @@
 
 .iconButton:hover,
 .leaveButton:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.22);
+  background: var(--bg-card-hover);
+  border-color: var(--border-secondary);
 }
 
 .leaveButton {
   padding: 0 14px;
-  background: rgba(255, 77, 77, 0.14);
-  border-color: rgba(255, 77, 77, 0.36);
-  color: #ffd4d4;
+  background: rgba(212, 76, 71, 0.1);
+  border-color: rgba(212, 76, 71, 0.22);
+  color: var(--danger);
 }
 
 .leaveButton:hover {
-  background: rgba(255, 77, 77, 0.24);
+  background: rgba(212, 76, 71, 0.14);
 }
 
 .inlineError {
   max-width: 240px;
   overflow: hidden;
-  color: #fca5a5;
+  color: var(--danger);
   font-size: 12px;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -313,6 +325,7 @@
 .roomStage {
   flex: 1;
   min-height: 0;
+  overflow: hidden;
 }
 
 .minimized .meetingHeader {
@@ -342,22 +355,47 @@
 .meetingShell :global(.lk-room-container),
 .meetingShell :global(.lk-video-conference) {
   height: 100%;
-  background: #080808;
+  background: #111;
 }
 
 @media (max-width: 900px) {
   .previewGrid {
     grid-template-columns: 1fr;
+    gap: 28px;
   }
 
   .previewCopy {
     max-width: none;
   }
+
+  .previewHeader {
+    margin-bottom: 32px;
+  }
 }
 
 @media (max-width: 640px) {
+  .centerScreen {
+    align-items: stretch;
+    padding: 16px;
+  }
+
+  .messagePanel {
+    align-self: center;
+    padding: 24px 18px;
+  }
+
+  .messageActions {
+    flex-direction: column;
+  }
+
+  .messageActions :global(.btn) {
+    width: 100%;
+    justify-content: center;
+  }
+
   .previewShell {
-    padding: 18px;
+    min-height: 100dvh;
+    padding: 16px;
   }
 
   .previewHeader {
@@ -369,14 +407,39 @@
   .previewMeta {
     align-items: flex-start;
     flex-direction: column;
+    gap: 6px;
   }
 
   .previewMeta span + span::before {
     display: none;
   }
 
+  .previewCopy h1 {
+    font-size: clamp(30px, 12vw, 44px);
+    line-height: 1.05;
+  }
+
+  .previewCopy p {
+    font-size: 15px;
+  }
+
+  .topicRow span {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .prejoinCard {
+    border-radius: var(--radius-sm);
+  }
+
   .prejoinCard :global(.lk-prejoin) {
-    min-height: 520px;
+    min-height: 0;
+    padding: 16px !important;
+  }
+
+  .prejoinCard :global(.lk-video-container) {
+    aspect-ratio: 4 / 3;
+    min-height: 0;
   }
 
   .meetingHeader {
@@ -384,12 +447,29 @@
     align-items: flex-start;
     flex-direction: column;
     padding: 12px;
+    gap: 10px;
+  }
+
+  .meetingTitleBlock {
+    width: 100%;
+  }
+
+  .meetingTitleBlock div {
+    flex-wrap: wrap;
+  }
+
+  .meetingTitleBlock span {
+    white-space: normal;
   }
 
   .meetingActions {
     width: 100%;
-    justify-content: flex-end;
+    justify-content: stretch;
     flex-wrap: wrap;
+  }
+
+  .iconButton {
+    flex: 1 1 42px;
   }
 
   .inlineError {
@@ -399,5 +479,47 @@
 
   .leaveButton {
     flex: 1;
+  }
+
+  .minimized {
+    inset: auto 10px 10px 10px;
+    width: auto;
+    height: min(260px, calc(100dvh - 20px));
+  }
+
+  .minimized .meetingHeader {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .minimized .meetingActions {
+    width: auto;
+    flex: 0 0 auto;
+  }
+
+  .minimized .leaveButton {
+    width: 38px;
+    flex: 0 0 38px;
+    padding: 0;
+    font-size: 0;
+  }
+
+  .minimized .roomStage {
+    height: auto;
+    flex: 1;
+  }
+}
+
+@media (max-height: 620px) and (orientation: landscape) {
+  .previewGrid {
+    align-items: start;
+  }
+
+  .prejoinCard :global(.lk-prejoin) {
+    min-height: 420px;
+  }
+
+  .meetingHeader {
+    min-height: 52px;
   }
 }

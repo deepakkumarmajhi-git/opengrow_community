@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { Menu, X, Sprout } from "lucide-react";
+import { Menu, X } from "lucide-react";
 
 const navLinks = [
   { label: "Features", href: "#features" },
-  { label: "How it Works", href: "#how-it-works" },
-  { label: "Community", href: "#stats" },
+  { label: "How It Works", href: "#how-it-works" },
+  { label: "Community Pulse", href: "#stats" },
 ];
 
 export default function Navbar() {
@@ -17,142 +18,181 @@ export default function Navbar() {
     <nav
       style={{
         position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
+        inset: "16px 0 auto",
         zIndex: 50,
-        background: "rgba(9, 9, 11, 0.8)",
-        backdropFilter: "blur(12px)",
-        borderBottom: "1px solid var(--border-primary)",
+        padding: "0 18px",
       }}
     >
       <div
+        className="surface"
         style={{
-          maxWidth: 1200,
+          width: "min(1180px, 100%)",
           margin: "0 auto",
-          padding: "0 24px",
-          height: 64,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
+          padding: "14px 18px",
+          borderRadius: 999,
+          backdropFilter: "blur(22px)",
         }}
       >
-        {/* Logo */}
-        <Link
-          href="/"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            fontWeight: 700,
-            fontSize: 18,
-          }}
-        >
-          <Sprout size={22} color="var(--accent)" />
-          <span>OpenGrow</span>
-        </Link>
-
-        {/* Desktop Nav */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 32,
+            justifyContent: "space-between",
+            gap: 18,
           }}
-          className="hidden-mobile"
         >
-          {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
+          <Link
+            href="/"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 12,
+              fontFamily: "var(--font-display)",
+              fontSize: 20,
+              fontWeight: 700,
+              letterSpacing: "-0.04em",
+            }}
+          >
+            <span
               style={{
-                fontSize: 14,
-                color: "var(--text-secondary)",
-                transition: "color 0.2s",
+                width: 38,
+                height: 38,
+                borderRadius: 8,
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                overflow: "hidden",
+                background: "var(--bg-tertiary)",
+                border: "1px solid var(--border-secondary)",
               }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.color = "var(--text-primary)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.color = "var(--text-secondary)")
-              }
             >
-              {link.label}
-            </a>
-          ))}
-        </div>
-
-        {/* Auth Buttons */}
-        <div
-          style={{ display: "flex", alignItems: "center", gap: 12 }}
-          className="hidden-mobile"
-        >
-          <Link href="/login" className="btn btn-ghost btn-sm">
-            Log in
+              <Image
+                src="/logo.png"
+                alt="OpenGrow logo"
+                width={38}
+                height={38}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            </span>
+            OpenGrow
           </Link>
-          <Link href="/signup" className="btn btn-primary btn-sm">
-            Get Started
-          </Link>
-        </div>
 
-        {/* Mobile Toggle */}
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="mobile-only"
-          style={{
-            background: "none",
-            border: "none",
-            color: "var(--text-primary)",
-            cursor: "pointer",
-            display: "none",
-          }}
-          aria-label="Toggle menu"
-        >
-          {mobileOpen ? <X size={22} /> : <Menu size={22} />}
-        </button>
-      </div>
+          <div
+            className="hidden-mobile"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              padding: 6,
+              borderRadius: 999,
+              background: "rgba(255, 255, 255, 0.03)",
+              border: "1px solid var(--border-primary)",
+            }}
+          >
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                style={{
+                  padding: "10px 14px",
+                  borderRadius: 999,
+                  color: "var(--text-secondary)",
+                  fontSize: 13,
+                  fontWeight: 700,
+                }}
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
 
-      {/* Mobile Menu */}
-      {mobileOpen && (
-        <div
-          style={{
-            padding: "16px 24px 24px",
-            borderTop: "1px solid var(--border-primary)",
-            background: "var(--bg-secondary)",
-            display: "flex",
-            flexDirection: "column",
-            gap: 12,
-          }}
-          className="animate-slide-down"
-        >
-          {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              style={{ fontSize: 14, color: "var(--text-secondary)", padding: "8px 0" }}
-              onClick={() => setMobileOpen(false)}
-            >
-              {link.label}
-            </a>
-          ))}
-          <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
-            <Link href="/login" className="btn btn-secondary btn-sm" style={{ flex: 1 }}>
+          <div
+            className="hidden-mobile"
+            style={{ display: "flex", alignItems: "center", gap: 10 }}
+          >
+            <Link href="/login" className="btn btn-ghost btn-sm">
               Log in
             </Link>
-            <Link href="/signup" className="btn btn-primary btn-sm" style={{ flex: 1 }}>
-              Get Started
+            <Link href="/signup" className="btn btn-primary btn-sm">
+              Join Free
             </Link>
           </div>
+
+          <button
+            type="button"
+            onClick={() => setMobileOpen((open) => !open)}
+            className="mobile-only"
+            aria-label="Toggle menu"
+            style={{
+              display: "none",
+              width: 42,
+              height: 42,
+              borderRadius: 999,
+              border: "1px solid var(--border-primary)",
+              background: "rgba(255, 255, 255, 0.03)",
+              cursor: "pointer",
+            }}
+          >
+            {mobileOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
         </div>
-      )}
+
+        {mobileOpen && (
+          <div
+            className="animate-slide-down"
+            style={{
+              marginTop: 16,
+              paddingTop: 16,
+              borderTop: "1px solid var(--border-primary)",
+              display: "flex",
+              flexDirection: "column",
+              gap: 12,
+            }}
+          >
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={() => setMobileOpen(false)}
+                style={{
+                  padding: "10px 6px",
+                  color: "var(--text-secondary)",
+                  fontSize: 14,
+                  fontWeight: 700,
+                }}
+              >
+                {link.label}
+              </a>
+            ))}
+            <div style={{ display: "flex", gap: 10 }}>
+              <Link href="/login" className="btn btn-secondary btn-sm" style={{ flex: 1 }}>
+                Log in
+              </Link>
+              <Link href="/signup" className="btn btn-primary btn-sm" style={{ flex: 1 }}>
+                Join Free
+              </Link>
+            </div>
+          </div>
+        )}
+      </div>
 
       <style jsx global>{`
         @media (min-width: 769px) {
-          .mobile-only { display: none !important; }
+          .mobile-only {
+            display: none !important;
+          }
         }
+
         @media (max-width: 768px) {
-          .hidden-mobile { display: none !important; }
-          .mobile-only { display: block !important; }
+          .hidden-mobile {
+            display: none !important;
+          }
+
+          .mobile-only {
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+          }
         }
       `}</style>
     </nav>

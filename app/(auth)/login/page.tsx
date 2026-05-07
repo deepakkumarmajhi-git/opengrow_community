@@ -1,61 +1,69 @@
 "use client";
 
 import { useActionState } from "react";
-import { login } from "@/app/actions/auth";
 import Link from "next/link";
-import { LogIn, ArrowLeft } from "lucide-react";
+import { ArrowLeft, LogIn, Sparkles } from "lucide-react";
+import { login } from "@/app/actions/auth";
 
 export default function LoginPage() {
   const [state, action, pending] = useActionState(login, undefined);
 
   return (
-    <div className="animate-fade-in">
+    <div className="card auth-card animate-fade-in">
       <Link
         href="/"
         style={{
           display: "inline-flex",
           alignItems: "center",
           gap: 8,
+          marginBottom: 26,
+          color: "var(--text-secondary)",
           fontSize: 13,
-          color: "var(--text-muted)",
-          marginBottom: 32,
-          transition: "color 0.2s",
+          fontWeight: 700,
         }}
-        className="hover-white"
       >
         <ArrowLeft size={14} />
-        Back to Home
+        Back to home
       </Link>
 
-      <div style={{ marginBottom: 40 }}>
-        <h1 style={{ fontSize: 32, fontWeight: 800, marginBottom: 12, letterSpacing: "-0.04em" }}>
-          Welcome back
+      <div style={{ marginBottom: 28 }}>
+        <span className="eyebrow" style={{ marginBottom: 14 }}>
+          Returning member
+        </span>
+        <h1
+          style={{
+            fontFamily: "var(--font-display)",
+            fontSize: 40,
+            lineHeight: 0.98,
+            letterSpacing: "-0.05em",
+            marginBottom: 10,
+          }}
+        >
+          Welcome back.
         </h1>
-        <p style={{ fontSize: 16, color: "var(--text-secondary)", lineHeight: 1.6 }}>
-          Log in to your OpenGrow account to join your communities and sessions.
+        <p
+          style={{
+            color: "var(--text-secondary)",
+            fontSize: 15,
+            lineHeight: 1.75,
+          }}
+        >
+          Step back into your communities and pick up where your last
+          conversation left off.
         </p>
       </div>
 
-      <form
-        action={action}
-        className="glass-panel"
-        style={{
-          padding: 40,
-          display: "flex",
-          flexDirection: "column",
-          gap: 24,
-        }}
-      >
+      <form action={action} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
         {state?.message && (
           <div
             style={{
-              padding: "12px 16px",
-              background: "rgba(239, 68, 68, 0.05)",
-              border: "1px solid rgba(239, 68, 68, 0.15)",
+              padding: "14px 16px",
               borderRadius: "var(--radius-md)",
+              background: "rgba(255, 133, 116, 0.1)",
+              border: "1px solid rgba(255, 133, 116, 0.2)",
               color: "var(--danger)",
               fontSize: 14,
-              fontWeight: 500
+              fontWeight: 600,
             }}
           >
             {state.message}
@@ -63,68 +71,71 @@ export default function LoginPage() {
         )}
 
         <div>
-          <label htmlFor="email" className="label-minimal">Email Address</label>
+          <label htmlFor="email" className="label">
+            Email Address
+          </label>
           <input
             id="email"
             name="email"
             type="email"
             placeholder="you@example.com"
-            className="input-minimal"
+            className="input"
             required
             autoComplete="email"
           />
           {state?.errors?.email && (
-            <p style={{ fontSize: 12, color: "var(--danger)", marginTop: 6, fontWeight: 500 }}>
+            <p style={{ marginTop: 8, color: "var(--danger)", fontSize: 12 }}>
               {state.errors.email[0]}
             </p>
           )}
         </div>
 
         <div>
-          <label htmlFor="password" className="label-minimal">Password</label>
+          <label htmlFor="password" className="label">
+            Password
+          </label>
           <input
             id="password"
             name="password"
             type="password"
-            placeholder="••••••••"
-            className="input-minimal"
+            placeholder="Enter your password"
+            className="input"
             required
             autoComplete="current-password"
           />
           {state?.errors?.password && (
-            <p style={{ fontSize: 12, color: "var(--danger)", marginTop: 6, fontWeight: 500 }}>
+            <p style={{ marginTop: 8, color: "var(--danger)", fontSize: 12 }}>
               {state.errors.password[0]}
             </p>
           )}
         </div>
 
-        <button
-          type="submit"
-          disabled={pending}
-          className="btn btn-primary"
-          style={{ width: "100%", height: 52, marginTop: 8, fontSize: 15, fontWeight: 700 }}
-        >
-          {pending ? "Synchronizing..." : "Continue"}
-          {!pending && <LogIn size={18} />}
+        <button type="submit" disabled={pending} className="btn btn-primary" style={{ marginTop: 6 }}>
+          {pending ? "Signing you in..." : "Continue to dashboard"}
+          {!pending && <LogIn size={16} />}
         </button>
       </form>
 
-      <p
+      <div
         style={{
-          textAlign: "center",
-          marginTop: 32,
-          fontSize: 14,
-          color: "var(--text-muted)",
+          marginTop: 22,
+          paddingTop: 18,
+          borderTop: "1px solid var(--border-primary)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 12,
+          flexWrap: "wrap",
         }}
       >
-        New to OpenGrow?{" "}
-        <Link
-          href="/signup"
-          style={{ color: "var(--text-primary)", fontWeight: 600, textDecoration: "underline" }}
-        >
+        <p style={{ color: "var(--text-muted)", fontSize: 13 }}>
+          New to OpenGrow?
+        </p>
+        <Link href="/signup" style={{ display: "inline-flex", alignItems: "center", gap: 6, fontWeight: 700 }}>
           Create an account
+          <Sparkles size={14} />
         </Link>
-      </p>
+      </div>
     </div>
   );
 }

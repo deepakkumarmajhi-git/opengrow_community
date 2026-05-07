@@ -1,10 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Play } from "lucide-react";
+import { ArrowRight, CheckCircle2, Play, Sparkles, Users } from "lucide-react";
 
 const roles = ["Students", "Developers", "Professionals", "Teachers"];
+const highlights = [
+  "Structured live rooms",
+  "AI session feedback",
+  "Communities with momentum",
+];
 
 export default function Hero() {
   const [roleIndex, setRoleIndex] = useState(0);
@@ -21,148 +26,275 @@ export default function Hero() {
           setDisplayText(currentRole.slice(0, displayText.length + 1));
         }, 80);
       } else {
-        timeout = setTimeout(() => setIsDeleting(true), 2000);
+        timeout = setTimeout(() => setIsDeleting(true), 1800);
       }
+    } else if (displayText.length > 0) {
+      timeout = setTimeout(() => {
+        setDisplayText(displayText.slice(0, -1));
+      }, 36);
     } else {
-      if (displayText.length > 0) {
-        timeout = setTimeout(() => {
-          setDisplayText(displayText.slice(0, -1));
-        }, 40);
-      } else {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
+      timeout = setTimeout(() => {
         setIsDeleting(false);
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setRoleIndex((prev) => (prev + 1) % roles.length);
-      }
+      }, 0);
     }
+
     return () => clearTimeout(timeout);
   }, [displayText, isDeleting, roleIndex]);
 
   return (
     <section
       style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "120px 24px 80px",
         position: "relative",
         overflow: "hidden",
+        padding: "132px 0 72px",
       }}
     >
-      {/* Background grid */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          backgroundImage:
-            "radial-gradient(circle at 1px 1px, var(--border-primary) 1px, transparent 0)",
-          backgroundSize: "40px 40px",
-          opacity: 0.4,
-        }}
-      />
-
-      {/* Gradient orb */}
-      <div
-        style={{
-          position: "absolute",
-          top: "20%",
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: 600,
-          height: 600,
-          background:
-            "radial-gradient(circle, var(--accent-glow) 0%, transparent 70%)",
-          opacity: 0.3,
-          borderRadius: "50%",
-          filter: "blur(80px)",
-          pointerEvents: "none",
-        }}
-      />
-
-      <div
-        style={{
-          position: "relative",
-          textAlign: "center",
-          maxWidth: 720,
-          zIndex: 1,
-        }}
-        className="animate-fade-in"
-      >
-        {/* Badge */}
+      <div className="section-shell">
         <div
-          className="badge"
-          style={{ marginBottom: 24, display: "inline-flex" }}
+          style={{
+            display: "grid",
+            gridTemplateColumns: "minmax(0, 1.08fr) minmax(320px, 0.92fr)",
+            gap: 34,
+            alignItems: "center",
+          }}
         >
-          <Play size={12} fill="currentColor" />
-          Live community discussions
-        </div>
+          <div className="animate-fade-in">
+            <div className="badge" style={{ marginBottom: 20 }}>
+              <Play size={12} fill="currentColor" />
+              Live community practice rooms
+            </div>
 
-        {/* Headline */}
-        <h1 style={{ fontSize: "clamp(36px, 5vw, 56px)", marginBottom: 8 }}>
-          Where{" "}
-          <span className="text-gradient" style={{ display: "inline-block", minWidth: "3ch" }}>
-            {displayText}
-            <span
+            <h1
               style={{
-                display: "inline-block",
-                width: 2,
-                height: "0.9em",
-                background: "var(--accent)",
-                marginLeft: 2,
-                animation: "pulse-glow 1s infinite",
-                verticalAlign: "text-bottom",
+                maxWidth: 760,
+                fontFamily: "var(--font-sans)",
+                fontSize: "clamp(42px, 7vw, 76px)",
+                lineHeight: 1,
+                letterSpacing: "-0.035em",
+                marginBottom: 18,
               }}
-            />
-          </span>
-        </h1>
-        <h1 style={{ fontSize: "clamp(36px, 5vw, 56px)", marginBottom: 24 }}>
-          Grow Together
-        </h1>
+            >
+              Where{" "}
+              <span className="text-gradient" style={{ minWidth: "4.3ch", display: "inline-block" }}>
+                {displayText}
+                <span
+                  style={{
+                    display: "inline-block",
+                    width: 2,
+                    height: "0.9em",
+                    marginLeft: 4,
+                    background: "var(--text-primary)",
+                    verticalAlign: "text-bottom",
+                    animation: "pulse-glow 1s infinite",
+                  }}
+                />
+              </span>
+              <br />
+              learn to speak with presence.
+            </h1>
 
-        {/* Subheading */}
-        <p
-          style={{
-            fontSize: 17,
-            color: "var(--text-secondary)",
-            maxWidth: 560,
-            margin: "0 auto 40px",
-            lineHeight: 1.7,
-          }}
-        >
-          Join communities, participate in scheduled video meetings, and improve
-          your communication skills through real conversations with real people.
-        </p>
+            <p
+              style={{
+                maxWidth: 620,
+                color: "var(--text-secondary)",
+                fontSize: 17,
+                lineHeight: 1.75,
+                marginBottom: 28,
+              }}
+            >
+              OpenGrow turns passive communities into living practice spaces where
+              people meet, speak, reflect, and steadily improve together.
+            </p>
 
-        {/* CTAs */}
-        <div
-          style={{
-            display: "flex",
-            gap: 12,
-            justifyContent: "center",
-            flexWrap: "wrap",
-          }}
-        >
-          <Link href="/signup" className="btn btn-primary btn-lg">
-            Start Growing
-            <ArrowRight size={16} />
-          </Link>
-          <a href="#features" className="btn btn-secondary btn-lg">
-            Learn More
-          </a>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 12,
+                marginBottom: 28,
+              }}
+            >
+              <Link href="/signup" className="btn btn-primary btn-lg">
+                Start Growing
+                <ArrowRight size={16} />
+              </Link>
+              <a href="#features" className="btn btn-secondary btn-lg">
+                Explore the experience
+              </a>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 10,
+              }}
+            >
+              {highlights.map((item) => (
+                <span
+                  key={item}
+                  className="badge-outline"
+                  style={{ background: "rgba(255, 255, 255, 0.03)" }}
+                >
+                  <Sparkles size={12} />
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="animate-fade-in">
+            <div
+              style={{
+                border: "1px solid var(--border-primary)",
+                borderRadius: 8,
+                background: "var(--bg-secondary)",
+                overflow: "hidden",
+                boxShadow: "var(--shadow-md)",
+              }}
+            >
+              <div
+                style={{
+                  padding: "14px 16px",
+                  borderBottom: "1px solid var(--border-primary)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 12,
+                  background: "var(--bg-tertiary)",
+                }}
+              >
+                <div>
+                  <p className="stat-label" style={{ marginBottom: 4 }}>
+                    OpenGrow workspace
+                  </p>
+                  <strong style={{ fontSize: 15 }}>Community operations</strong>
+                </div>
+                <span className="badge">Live</span>
+              </div>
+
+              <div style={{ padding: 18 }}>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                    border: "1px solid var(--border-primary)",
+                    borderRadius: 8,
+                    overflow: "hidden",
+                    marginBottom: 18,
+                  }}
+                >
+                  {[
+                    ["Sessions", "14"],
+                    ["Members", "186"],
+                    ["Reports", "42"],
+                  ].map(([label, value]) => (
+                    <div
+                      key={label}
+                      style={{
+                        padding: 14,
+                        borderRight:
+                          label === "Reports" ? "none" : "1px solid var(--border-primary)",
+                      }}
+                    >
+                      <p className="stat-label" style={{ marginBottom: 8 }}>
+                        {label}
+                      </p>
+                      <strong style={{ fontSize: 28, letterSpacing: "-0.02em" }}>
+                        {value}
+                      </strong>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ display: "grid", gap: 10 }}>
+                  {[
+                    ["Product Communication Circle", "Today, 7:30 PM", "18 / 20"],
+                    ["Interview Practice Room", "Tomorrow, 6:00 PM", "12 / 16"],
+                    ["Leadership Roundtable", "Fri, 8:00 PM", "9 / 12"],
+                  ].map(([title, time, attendance]) => (
+                    <div
+                      key={title}
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "minmax(0, 1fr) 120px 70px",
+                        gap: 12,
+                        alignItems: "center",
+                        padding: "12px 0",
+                        borderBottom: "1px solid var(--border-primary)",
+                      }}
+                    >
+                      <div style={{ minWidth: 0 }}>
+                        <strong
+                          style={{
+                            display: "block",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {title}
+                        </strong>
+                        <span style={{ color: "var(--text-muted)", fontSize: 12 }}>
+                          Scheduled room
+                        </span>
+                      </div>
+                      <span style={{ color: "var(--text-secondary)", fontSize: 13 }}>
+                        {time}
+                      </span>
+                      <span style={{ color: "var(--text-secondary)", fontSize: 13 }}>
+                        {attendance}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <div
+                  style={{
+                    marginTop: 18,
+                    display: "grid",
+                    gap: 10,
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      color: "var(--text-secondary)",
+                      fontSize: 14,
+                    }}
+                  >
+                    <CheckCircle2 size={16} color="var(--success)" />
+                    AI summaries are queued after each completed room.
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      color: "var(--text-secondary)",
+                      fontSize: 14,
+                    }}
+                  >
+                    <Users size={16} color="var(--accent)" />
+                    Hosts can see attendance and member momentum in one place.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-
-        {/* Trust line */}
-        <p
-          style={{
-            marginTop: 32,
-            fontSize: 13,
-            color: "var(--text-muted)",
-          }}
-        >
-          Free to join · No credit card required · 100% anonymous discussions
-        </p>
       </div>
+
+      <style jsx>{`
+        @media (max-width: 980px) {
+          section > .section-shell > div {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
     </section>
   );
 }

@@ -1,24 +1,24 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import {
+  ArrowLeft,
+  CalendarPlus,
+  Clock,
+  ExternalLink,
+  Shield,
+  Users,
+  Video,
+} from "lucide-react";
+import CommunitySettings from "@/app/(main)/community/[id]/CommunitySettings";
+import CommunityWorkspace from "@/app/(main)/community/[id]/CommunityWorkspace";
+import ScheduleMeetingForm from "@/app/(main)/community/[id]/ScheduleMeetingForm";
+import AvailabilityVoting from "@/app/components/AvailabilityVoting";
+import JoinButton from "@/app/components/JoinButton";
 import { getSession } from "@/lib/session";
 import connectDB from "@/lib/mongodb";
 import Community from "@/lib/models/Community";
 import Meeting from "@/lib/models/Meeting";
 import User from "@/lib/models/User";
-import { redirect } from "next/navigation";
-import Link from "next/link";
-import {
-  Users,
-  Video,
-  Calendar,
-  ArrowLeft,
-  Clock,
-  User as UserIcon,
-  Shield,
-  Layout,
-  ExternalLink,
-} from "lucide-react";
-import ScheduleMeetingForm from "@/app/(main)/community/[id]/ScheduleMeetingForm";
-import JoinButton from "@/app/components/JoinButton";
-import CommunitySettings from "@/app/(main)/community/[id]/CommunitySettings";
 
 export default async function CommunityPage({
   params,
@@ -38,10 +38,10 @@ export default async function CommunityPage({
 
   if (!community) {
     return (
-      <div className="page-container" style={{ textAlign: "center", paddingTop: 100 }}>
-        <p style={{ color: "var(--text-muted)" }}>Community not found</p>
-        <Link href="/discover" className="btn btn-secondary" style={{ marginTop: 16 }}>
-          Back to Discover
+      <div className="page-container" style={{ paddingTop: 90, textAlign: "center" }}>
+        <p style={{ color: "var(--text-secondary)", marginBottom: 16 }}>Community not found.</p>
+        <Link href="/discover" className="btn btn-secondary">
+          Back to discover
         </Link>
       </div>
     );
@@ -55,14 +55,14 @@ export default async function CommunityPage({
   const isCreator =
     (community.creator as unknown as { _id: string })?._id?.toString() === session.userId;
   const isMember = (community.members as unknown as { _id: string }[])?.some(
-    (m) => m._id?.toString() === session.userId
+    (member) => member._id?.toString() === session.userId
   );
 
   const upcomingMeetings = meetings.filter(
-    (m) => new Date(m.scheduledAt) >= new Date() && m.status !== "completed"
+    (meeting) => new Date(meeting.scheduledAt) >= new Date() && meeting.status !== "completed"
   );
   const pastMeetings = meetings.filter(
-    (m) => new Date(m.scheduledAt) < new Date() || m.status === "completed"
+    (meeting) => new Date(meeting.scheduledAt) < new Date() || meeting.status === "completed"
   );
 
   const creator = community.creator as unknown as {
@@ -71,6 +71,7 @@ export default async function CommunityPage({
     email: string;
     role: string;
   };
+
   const members = community.members as unknown as {
     _id: string;
     name: string;
@@ -78,306 +79,440 @@ export default async function CommunityPage({
     points: number;
   }[];
 
+  const workspace = {
+    pinnedNotes: (community.pinnedNotes || []).map((note: { title: string; body: string }) => ({
+      title: note.title,
+      body: note.body,
+    })),
+    resources: (community.resources || []).map(
+      (resource: { title: string; url: string; description?: string }) => ({
+        title: resource.title,
+        url: resource.url,
+        description: resource.description || "",
+      })
+    ),
+    announcements: (community.announcements || []).map((announcement: { body: string }) => ({
+      body: announcement.body,
+    })),
+    weeklyGoals: (community.weeklyGoals || []).map((goal: { text: string; done: boolean }) => ({
+      text: goal.text,
+      done: goal.done,
+    })),
+  };
+
   return (
-    <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
-      {/* Hero Header */}
-      <div className="hero-gradient" style={{ paddingTop: 60, paddingBottom: 40 }}>
-        <div className="page-container" style={{ paddingTop: 0, paddingBottom: 0 }}>
-          <Link
-            href="/discover"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-              fontSize: 13,
-              color: "var(--text-muted)",
-              marginBottom: 32,
-              transition: "color 0.2s",
-            }}
-            className="hover-white"
-          >
-            <ArrowLeft size={14} />
-            Back to Communities
-          </Link>
+    <div className="page-container">
+      <Link
+        href="/discover"
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 8,
+          marginBottom: 16,
+          color: "var(--text-secondary)",
+          fontSize: 13,
+          fontWeight: 700,
+        }}
+      >
+        <ArrowLeft size={14} />
+        Back to discover
+      </Link>
 
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 24, flexWrap: "wrap" }}>
-            <div style={{ flex: 1, minWidth: 300 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
-                <span className="badge-outline">{community.category}</span>
-                {isCreator && (
-                  <span style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 600, color: "var(--accent)", background: "var(--accent-muted)", padding: "4px 10px", borderRadius: 9999 }}>
-                    <Shield size={10} />
-                    ADMIN
-                  </span>
-                )}
-              </div>
-              <h1 style={{ fontSize: "clamp(32px, 5vw, 48px)", fontWeight: 800, marginBottom: 16, letterSpacing: "-0.04em" }}>
-                {community.name}
-              </h1>
-              <p style={{ fontSize: 16, color: "var(--text-secondary)", lineHeight: 1.6, maxWidth: 700, marginBottom: 0 }}>
-                {community.description}
-              </p>
-            </div>
-
-            <div style={{ display: "flex", gap: 12, alignItems: "center", paddingBottom: 8 }}>
-              {!isCreator && !isMember && <JoinButton communityId={id} />}
+      <div
+        className="card"
+        style={{
+          marginBottom: 24,
+          padding: "28px clamp(22px, 4vw, 34px)",
+          background:
+            "linear-gradient(135deg, rgba(132, 240, 184, 0.14), rgba(245, 184, 109, 0.08)), var(--bg-card)",
+        }}
+      >
+        <div
+          className="community-hero-row"
+          style={{
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "space-between",
+            gap: 20,
+            flexWrap: "wrap",
+          }}
+        >
+          <div style={{ maxWidth: 760 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 14 }}>
+              <span className="badge-outline">{community.category}</span>
               {isCreator && (
-                <CommunitySettings 
-                  community={{
-                    _id: String(community._id),
-                    name: community.name,
-                    description: community.description,
-                    category: community.category,
-                    maxMembers: community.maxMembers
-                  }} 
-                  members={members.filter(m => m._id.toString() !== session.userId)}
-                />
+                <span className="badge" style={{ background: "rgba(132, 240, 184, 0.12)", color: "var(--accent)" }}>
+                  <Shield size={12} />
+                  Host
+                </span>
               )}
             </div>
+            <h1
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "clamp(36px, 5vw, 58px)",
+                lineHeight: 0.94,
+                letterSpacing: "-0.05em",
+                marginBottom: 14,
+              }}
+            >
+              {community.name}
+            </h1>
+            <p style={{ color: "var(--text-secondary)", fontSize: 16, lineHeight: 1.8 }}>
+              {community.description}
+            </p>
           </div>
 
-          {/* Quick Stats */}
-          <div style={{ 
-            display: "grid", 
-            gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", 
-            gap: 1, 
-            background: "var(--border-primary)",
-            marginTop: 48,
-            borderRadius: "var(--radius-md)",
-            overflow: "hidden",
-            border: "1px solid var(--border-primary)"
-          }}>
-            <div className="stat-card" style={{ background: "var(--bg-tertiary)" }}>
-              <span className="stat-label">Members</span>
-              <span className="stat-value">{members.length} <span style={{ fontSize: 14, color: "var(--text-muted)", fontWeight: 400 }}>/ {community.maxMembers}</span></span>
-            </div>
-            <div className="stat-card" style={{ background: "var(--bg-tertiary)" }}>
-              <span className="stat-label">Upcoming</span>
-              <span className="stat-value">{upcomingMeetings.length}</span>
-            </div>
-            <div className="stat-card" style={{ background: "var(--bg-tertiary)" }}>
-              <span className="stat-label">Host</span>
-              <span className="stat-value" style={{ fontSize: 16 }}>{creator?.name.split(" ")[0]}</span>
-            </div>
-            <div className="stat-card" style={{ background: "var(--bg-tertiary)" }}>
-              <span className="stat-label">Activity</span>
-              <span className="stat-value" style={{ fontSize: 16, color: "#10b981" }}>High</span>
-            </div>
+          <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+            {!isCreator && !isMember && <JoinButton communityId={id} />}
+            {isCreator && (
+              <CommunitySettings
+                community={{
+                  _id: String(community._id),
+                  name: community.name,
+                  description: community.description,
+                  category: community.category,
+                  maxMembers: community.maxMembers,
+                }}
+                members={members.filter((member) => member._id.toString() !== session.userId)}
+              />
+            )}
+          </div>
+        </div>
+
+        <div
+          className="community-stat-grid"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+            gap: 14,
+            marginTop: 24,
+          }}
+        >
+          <div className="card stat-card">
+            <span className="stat-label">Members</span>
+            <span className="stat-value">
+              {members.length}
+              <span style={{ fontSize: 14, color: "var(--text-muted)", marginLeft: 8 }}>
+                / {community.maxMembers}
+              </span>
+            </span>
+          </div>
+          <div className="card stat-card">
+            <span className="stat-label">Upcoming Sessions</span>
+            <span className="stat-value">{upcomingMeetings.length}</span>
+          </div>
+          <div className="card stat-card">
+            <span className="stat-label">Host</span>
+            <span className="stat-value" style={{ fontSize: 26 }}>
+              {creator?.name.split(" ")[0]}
+            </span>
+          </div>
+          <div className="card stat-card">
+            <span className="stat-label">Energy</span>
+            <span className="stat-value" style={{ fontSize: 26 }}>
+              Active
+            </span>
           </div>
         </div>
       </div>
 
-      <div className="page-container" style={{ paddingTop: 40 }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 40, alignItems: "start" }}>
-          {/* Main Content */}
-          <main>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 700, display: "flex", alignItems: "center", gap: 8 }}>
-                <Video size={20} />
-                Live Sessions
-              </h2>
-            </div>
-
-            {/* Schedule form (only for creator) */}
-            {isCreator && (
-              <div style={{ marginBottom: 32 }}>
-                <ScheduleMeetingForm communityId={id} />
-              </div>
-            )}
-
-            {/* Non-member welcome */}
-            {!isMember && !isCreator && (
-              <div
-                className="glass-panel"
+      <div
+        className="community-content-grid"
+        style={{
+          display: "grid",
+          gridTemplateColumns: "minmax(0, 1.45fr) minmax(300px, 0.85fr)",
+          gap: 24,
+          alignItems: "start",
+        }}
+      >
+        <main>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-end",
+              justifyContent: "space-between",
+              gap: 14,
+              marginBottom: 18,
+              flexWrap: "wrap",
+            }}
+          >
+            <div>
+              <p className="stat-label" style={{ marginBottom: 8 }}>
+                Sessions
+              </p>
+              <h2
                 style={{
-                  padding: 40,
-                  textAlign: "center",
-                  marginBottom: 32
+                  fontFamily: "var(--font-display)",
+                  fontSize: 30,
+                  letterSpacing: "-0.05em",
                 }}
               >
-                <Layout size={40} style={{ margin: "0 auto 16px", color: "var(--accent)", opacity: 0.8 }} />
-                <h3 style={{ fontSize: 22, marginBottom: 12 }}>Join the Conversation</h3>
-                <p style={{ color: "var(--text-secondary)", marginBottom: 24, maxWidth: 450, margin: "0 auto 24px" }}>
-                  Connect with experts, participate in live meetings, and access exclusive AI-generated session reports.
-                </p>
-                <JoinButton communityId={id} />
-              </div>
-            )}
+                Live rooms for this community
+              </h2>
+            </div>
+            {isCreator && <ScheduleMeetingForm communityId={id} />}
+          </div>
 
-            {/* Upcoming Meetings */}
-            <section style={{ marginBottom: 40 }}>
-              <h3 style={{ fontSize: 12, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 16 }}>
-                Upcoming Meetings
+          {!isMember && !isCreator && (
+            <div className="card" style={{ marginBottom: 18, textAlign: "center", padding: 30 }}>
+              <h3
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: 28,
+                  letterSpacing: "-0.05em",
+                  marginBottom: 10,
+                }}
+              >
+                Join to access future sessions
               </h3>
-              
-              {upcomingMeetings.length > 0 ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                  {upcomingMeetings.map((meeting) => (
-                    <div
-                      key={String(meeting._id)}
-                      className="glass-panel"
-                      style={{
-                        padding: "20px 24px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <div style={{ flex: 1 }}>
-                        <h4 style={{ fontSize: 16, fontWeight: 600, marginBottom: 6 }}>{meeting.title}</h4>
-                        <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 13, color: "var(--text-muted)" }}>
-                          <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                            <Clock size={14} />
-                            {new Date(meeting.scheduledAt).toLocaleDateString("en-US", {
-                              weekday: "short",
-                              month: "short",
-                              day: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </span>
-                          <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                            <Users size={14} />
-                            {meeting.attendees?.length || 0} attending
-                          </span>
-                        </div>
-                      </div>
-                      
-                      {(isMember || isCreator) && (
-                        <Link
-                          href={`/meeting/${meeting._id}`}
-                          className="btn btn-primary"
-                          style={{ padding: "8px 20px" }}
-                        >
-                          Join Now
-                        </Link>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="glass-panel" style={{ padding: 40, textAlign: "center", color: "var(--text-muted)" }}>
-                  <p style={{ fontSize: 14 }}>No upcoming sessions scheduled.</p>
-                </div>
-              )}
-            </section>
+              <p style={{ color: "var(--text-secondary)", lineHeight: 1.75, maxWidth: 520, margin: "0 auto 18px" }}>
+                Become a member to participate in live meetings and unlock post-session reports.
+              </p>
+              <JoinButton communityId={id} />
+            </div>
+          )}
 
-            {/* Past Meetings */}
-            {pastMeetings.length > 0 && (
-              <section>
-                <h3 style={{ fontSize: 12, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 16 }}>
-                  Archive
-                </h3>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                  {pastMeetings.slice(0, 4).map((meeting) => {
-                    const didAttend =
-                      (meeting.attendees as unknown as Array<{ toString(): string }> | undefined)?.some(
-                        (a) => a.toString() === session.userId
-                      ) ||
-                      String(
-                        (meeting.host as unknown as { _id?: unknown })?._id ?? meeting.host
-                      ) === session.userId;
-                    return (
-                      <div
-                        key={String(meeting._id)}
-                        className="glass-panel"
-                        style={{ padding: 16, display: "flex", flexDirection: "column", justifyContent: "space-between" }}
-                      >
-                        <div style={{ marginBottom: 12 }}>
-                          <h4 style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>{meeting.title}</h4>
-                          <p style={{ fontSize: 12, color: "var(--text-muted)" }}>
-                            {new Date(meeting.scheduledAt).toLocaleDateString("en-US", {
-                              month: "short",
-                              day: "numeric",
-                            })}
-                          </p>
-                        </div>
-                        {didAttend && (
-                          <Link
-                            href={`/meeting/${meeting._id}/report`}
-                            style={{
-                              fontSize: 12,
-                              fontWeight: 600,
-                              color: "var(--text-primary)",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 6
-                            }}
-                            className="hover-underline"
-                          >
-                            View Summary
-                            <ExternalLink size={12} />
-                          </Link>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-              </section>
-            )}
-          </main>
-
-          {/* Sidebar */}
-          <aside>
-            <div style={{ position: "sticky", top: 40 }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-                <h2 style={{ fontSize: 16, fontWeight: 700 }}>Members</h2>
-                <span style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 600 }}>{members.length} TOTAL</span>
-              </div>
-              
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {members.map((member) => (
+          <section style={{ marginBottom: 24 }}>
+            <p className="stat-label" style={{ marginBottom: 12 }}>
+              Upcoming
+            </p>
+            {upcomingMeetings.length > 0 ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {upcomingMeetings.map((meeting) => (
                   <div
-                    key={member._id}
-                    className="glass-panel"
+                    key={String(meeting._id)}
+                    className="card community-meeting-card"
                     style={{
-                      padding: 12,
+                      padding: 22,
                       display: "flex",
                       alignItems: "center",
-                      gap: 12,
-                      border: "none",
-                      background: "rgba(255,255,255,0.02)"
+                      justifyContent: "space-between",
+                      gap: 18,
                     }}
                   >
-                    <div
-                      style={{
-                        width: 36,
-                        height: 36,
-                        borderRadius: "10px",
-                        background: member._id === creator?._id ? "var(--accent-muted)" : "var(--bg-tertiary)",
-                        color: member._id === creator?._id ? "var(--accent)" : "var(--text-secondary)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontWeight: 700,
-                        fontSize: 12,
-                        border: "1px solid var(--border-primary)"
-                      }}
-                    >
-                      {member.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)}
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                        {member.name}
+                    <div style={{ flex: 1 }}>
+                      <p className="stat-label" style={{ marginBottom: 8 }}>
+                        {meeting.template ? String(meeting.template).replace(/-/g, " ") : "Scheduled Session"}
                       </p>
-                      <p style={{ fontSize: 11, color: "var(--text-muted)" }}>
-                        {member._id === creator?._id ? "Community Admin" : member.role}
-                      </p>
+                      <h3
+                        style={{
+                          fontSize: 22,
+                          fontWeight: 700,
+                          letterSpacing: "-0.03em",
+                          marginBottom: 8,
+                        }}
+                      >
+                        {meeting.title}
+                      </h3>
+                      <div className="community-meeting-meta" style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap", color: "var(--text-secondary)", fontSize: 13 }}>
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                          <Clock size={14} />
+                          {new Date(meeting.scheduledAt).toLocaleDateString("en-US", {
+                            weekday: "short",
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                          <Users size={14} />
+                          {meeting.attendees?.length || 0} attending
+                        </span>
+                      </div>
                     </div>
+
+                    {(isMember || isCreator) && (
+                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                        <a href={`/api/meetings/${meeting._id}/calendar`} className="btn btn-secondary btn-sm">
+                          <CalendarPlus size={14} />
+                          Calendar
+                        </a>
+                        <Link href={`/meeting/${meeting._id}`} className="btn btn-primary btn-sm">
+                          Join room
+                        </Link>
+                      </div>
+                    )}
+
+                    {(isMember || isCreator) && (
+                      <AvailabilityVoting
+                        meetingId={String(meeting._id)}
+                        currentUserId={session.userId}
+                        options={(meeting.availabilityOptions || []).map(
+                          (option: { startsAt: Date; votes: unknown[] }) => ({
+                            startsAt: option.startsAt,
+                            votes: option.votes.map(String),
+                          })
+                        )}
+                      />
+                    )}
                   </div>
                 ))}
               </div>
+            ) : (
+              <div className="card" style={{ padding: 30, color: "var(--text-secondary)" }}>
+                No upcoming sessions yet. {isCreator ? "Schedule the next one to keep momentum alive." : "Check back soon."}
+              </div>
+            )}
+          </section>
 
-              {members.length > 10 && (
-                <button style={{ width: "100%", marginTop: 12, background: "none", border: "none", color: "var(--text-muted)", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
-                  View all members
-                </button>
-              )}
+          {pastMeetings.length > 0 && (
+            <section>
+              <p className="stat-label" style={{ marginBottom: 12 }}>
+                Archive
+              </p>
+              <div className="community-archive-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
+                {pastMeetings.slice(0, 4).map((meeting) => {
+                  const didAttend =
+                    (meeting.attendees as unknown as Array<{ toString(): string }> | undefined)?.some(
+                      (attendee) => attendee.toString() === session.userId
+                    ) ||
+                    String((meeting.host as unknown as { _id?: unknown })?._id ?? meeting.host) === session.userId;
+
+                  return (
+                    <div key={String(meeting._id)} className="card" style={{ padding: 18 }}>
+                      <h4 style={{ fontWeight: 700, fontSize: 17, marginBottom: 8 }}>{meeting.title}</h4>
+                      <p style={{ color: "var(--text-secondary)", fontSize: 13, marginBottom: didAttend ? 16 : 0 }}>
+                        {new Date(meeting.scheduledAt).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </p>
+                      {didAttend && (
+                        <Link
+                          href={`/meeting/${meeting._id}/report`}
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 6,
+                            fontSize: 13,
+                            fontWeight: 700,
+                          }}
+                        >
+                          View report
+                          <ExternalLink size={13} />
+                        </Link>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+        </main>
+
+        <aside style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <CommunityWorkspace
+            communityId={id}
+            isCreator={isCreator}
+            workspace={workspace}
+          />
+
+          <div className="card">
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+              <div
+                style={{
+                  width: 42,
+                  height: 42,
+                  borderRadius: 16,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "rgba(132, 240, 184, 0.16)",
+                }}
+              >
+                <Video size={18} color="var(--accent)" />
+              </div>
+              <div>
+                <p className="stat-label" style={{ marginBottom: 6 }}>
+                  Community rhythm
+                </p>
+                <h3 style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.04em" }}>
+                  Real-time growth
+                </h3>
+              </div>
             </div>
-          </aside>
-        </div>
-      </div>
+            <p style={{ color: "var(--text-secondary)", lineHeight: 1.75 }}>
+              This room is designed for regular discussion, reflection, and shared accountability.
+            </p>
+          </div>
 
+          <div className="card">
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 16 }}>
+              <h2
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: 28,
+                  letterSpacing: "-0.05em",
+                }}
+              >
+                Members
+              </h2>
+              <span style={{ color: "var(--text-muted)", fontSize: 12, fontWeight: 700 }}>
+                {members.length} total
+              </span>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {members.map((member) => (
+                <div
+                  key={member._id}
+                  className="card"
+                  style={{
+                    padding: 14,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: 16,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background:
+                        member._id === creator?._id
+                          ? "linear-gradient(135deg, rgba(132, 240, 184, 0.18), rgba(245, 184, 109, 0.16))"
+                          : "rgba(255, 255, 255, 0.05)",
+                      border: "1px solid var(--border-primary)",
+                      flexShrink: 0,
+                      fontWeight: 700,
+                      fontSize: 12,
+                    }}
+                  >
+                    {member.name
+                      .split(" ")
+                      .map((part) => part[0])
+                      .join("")
+                      .toUpperCase()
+                      .slice(0, 2)}
+                  </div>
+                  <div style={{ minWidth: 0 }}>
+                    <p
+                      style={{
+                        fontWeight: 700,
+                        marginBottom: 4,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {member.name}
+                    </p>
+                    <p style={{ color: "var(--text-secondary)", fontSize: 12 }}>
+                      {member._id === creator?._id ? "Community host" : member.role}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </aside>
+      </div>
     </div>
   );
 }

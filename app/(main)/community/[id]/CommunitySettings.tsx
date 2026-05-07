@@ -1,16 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { 
-  MoreVertical, 
-  Settings, 
-  Users, 
-  Trash2, 
-  X, 
-  UserMinus, 
-  Save, 
-  AlertTriangle 
-} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { AlertTriangle, Settings, Trash2, UserMinus, Users, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface Member {
@@ -28,12 +19,12 @@ interface Community {
   maxMembers: number;
 }
 
-export default function CommunitySettings({ 
-  community, 
-  members 
-}: { 
-  community: Community; 
-  members: Member[]; 
+export default function CommunitySettings({
+  community,
+  members,
+}: {
+  community: Community;
+  members: Member[];
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeModal, setActiveModal] = useState<"edit" | "members" | "delete" | null>(null);
@@ -49,32 +40,35 @@ export default function CommunitySettings({
   const router = useRouter();
 
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+    const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
-    }
+    };
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleUpdate = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleUpdate = async (event: React.FormEvent) => {
+    event.preventDefault();
     setIsLoading(true);
+
     try {
-      const res = await fetch(`/api/communities/${community._id}`, {
+      const response = await fetch(`/api/communities/${community._id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-      if (res.ok) {
+
+      if (response.ok) {
         setActiveModal(null);
         router.refresh();
       } else {
-        const data = await res.json();
+        const data = await response.json();
         alert(data.error || "Failed to update community");
       }
-    } catch (err) {
+    } catch {
       alert("Something went wrong");
     } finally {
       setIsLoading(false);
@@ -83,18 +77,20 @@ export default function CommunitySettings({
 
   const handleDelete = async () => {
     setIsLoading(true);
+
     try {
-      const res = await fetch(`/api/communities/${community._id}`, {
+      const response = await fetch(`/api/communities/${community._id}`, {
         method: "DELETE",
       });
-      if (res.ok) {
+
+      if (response.ok) {
         router.push("/discover");
         router.refresh();
       } else {
-        const data = await res.json();
+        const data = await response.json();
         alert(data.error || "Failed to delete community");
       }
-    } catch (err) {
+    } catch {
       alert("Something went wrong");
     } finally {
       setIsLoading(false);
@@ -103,207 +99,166 @@ export default function CommunitySettings({
 
   const removeMember = async (memberId: string) => {
     if (!confirm("Are you sure you want to remove this member?")) return;
-    
+
     try {
-      const res = await fetch(`/api/communities/${community._id}/members/${memberId}`, {
+      const response = await fetch(`/api/communities/${community._id}/members/${memberId}`, {
         method: "DELETE",
       });
-      if (res.ok) {
-        setMemberList(memberList.filter(m => m._id !== memberId));
+
+      if (response.ok) {
+        setMemberList((current) => current.filter((member) => member._id !== memberId));
         router.refresh();
       } else {
-        const data = await res.json();
+        const data = await response.json();
         alert(data.error || "Failed to remove member");
       }
-    } catch (err) {
+    } catch {
       alert("Something went wrong");
     }
   };
 
   return (
     <div style={{ position: "relative" }} ref={dropdownRef}>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="btn btn-secondary"
-        style={{ 
-          padding: 8, 
-          borderRadius: 10,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "rgba(255, 255, 255, 0.05)",
-          border: "1px solid var(--border-primary)"
-        }}
-      >
-        <Settings size={18} />
+      <button type="button" onClick={() => setIsOpen((open) => !open)} className="btn btn-secondary btn-sm">
+        <Settings size={16} />
+        Manage
       </button>
 
       {isOpen && (
         <div
+          className="card"
           style={{
             position: "absolute",
-            top: "100%",
+            top: "calc(100% + 10px)",
             right: 0,
-            marginTop: 8,
-            width: 220,
-            background: "#0a0a0c",
-            border: "1px solid var(--border-primary)",
-            borderRadius: 12,
-            boxShadow: "0 20px 40px rgba(0, 0, 0, 0.6)",
-            zIndex: 50,
-            padding: 6,
-            overflow: "hidden"
+            width: 240,
+            zIndex: 20,
+            padding: 8,
           }}
         >
           <button
-            onClick={() => { setActiveModal("edit"); setIsOpen(false); }}
-            className="dropdown-item"
-            style={{ 
-              display: "flex", 
-              alignItems: "center", 
-              gap: 12, 
-              width: "100%", 
-              padding: "10px 14px", 
-              borderRadius: 8,
-              textAlign: "left",
-              fontSize: 13,
-              fontWeight: 500,
-              background: "none",
-              border: "none",
-              color: "var(--text-primary)",
-              cursor: "pointer",
-              transition: "background 0.2s"
+            type="button"
+            onClick={() => {
+              setActiveModal("edit");
+              setIsOpen(false);
             }}
+            className="dropdown-item"
+            style={menuButtonStyle}
           >
-            <Settings size={14} style={{ opacity: 0.6 }} />
-            Edit Community Details
+            <Settings size={15} />
+            Edit details
           </button>
           <button
-            onClick={() => { setActiveModal("members"); setIsOpen(false); }}
-            className="dropdown-item"
-            style={{ 
-              display: "flex", 
-              alignItems: "center", 
-              gap: 12, 
-              width: "100%", 
-              padding: "10px 14px", 
-              borderRadius: 8,
-              textAlign: "left",
-              fontSize: 13,
-              fontWeight: 500,
-              background: "none",
-              border: "none",
-              color: "var(--text-primary)",
-              cursor: "pointer",
-              transition: "background 0.2s"
+            type="button"
+            onClick={() => {
+              setActiveModal("members");
+              setIsOpen(false);
             }}
+            className="dropdown-item"
+            style={menuButtonStyle}
           >
-            <Users size={14} style={{ opacity: 0.6 }} />
-            Manage Members
+            <Users size={15} />
+            Manage members
           </button>
-          <div style={{ height: 1, background: "var(--border-primary)", margin: "4px 8px" }} />
           <button
-            onClick={() => { setActiveModal("delete"); setIsOpen(false); }}
-            className="dropdown-item"
-            style={{ 
-              display: "flex", 
-              alignItems: "center", 
-              gap: 12, 
-              width: "100%", 
-              padding: "10px 14px", 
-              borderRadius: 8,
-              textAlign: "left",
-              fontSize: 13,
-              fontWeight: 500,
-              background: "none",
-              border: "none",
-              color: "#ff4d4d",
-              cursor: "pointer",
-              transition: "background 0.2s"
+            type="button"
+            onClick={() => {
+              setActiveModal("delete");
+              setIsOpen(false);
             }}
+            className="dropdown-item"
+            style={{ ...menuButtonStyle, color: "var(--danger)" }}
           >
-            <Trash2 size={14} style={{ opacity: 0.8 }} />
-            Delete Community
+            <Trash2 size={15} />
+            Delete community
           </button>
         </div>
       )}
 
-      {/* Modals */}
       {activeModal && (
         <div
+          onClick={() => !isLoading && setActiveModal(null)}
           style={{
             position: "fixed",
             inset: 0,
-            background: "rgba(0, 0, 0, 0.8)",
-            backdropFilter: "blur(8px)",
+            zIndex: 100,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            zIndex: 100,
-            padding: 20
+            padding: 20,
+            background: "rgba(4, 11, 9, 0.78)",
+            backdropFilter: "blur(14px)",
           }}
-          onClick={() => !isLoading && setActiveModal(null)}
         >
           <div
+            className="card"
             style={{
-              background: "var(--bg-primary)",
-              border: "1px solid var(--border-secondary)",
-              borderRadius: 20,
-              width: "100%",
-              maxWidth: activeModal === "members" ? 500 : 450,
+              width: activeModal === "members" ? "min(620px, 100%)" : "min(540px, 100%)",
               maxHeight: "90vh",
               overflow: "auto",
-              boxShadow: "0 30px 60px rgba(0, 0, 0, 0.8)",
-              padding: 32,
-              position: "relative"
+              padding: 28,
             }}
-            onClick={(e) => e.stopPropagation()}
+            onClick={(event) => event.stopPropagation()}
           >
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
-              <h3 style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.02em" }}>
-                {activeModal === "edit" && "Update Community"}
-                {activeModal === "members" && "Member Directory"}
-                {activeModal === "delete" && "Remove Community"}
-              </h3>
-              <button 
-                onClick={() => setActiveModal(null)} 
-                disabled={isLoading}
-                style={{ color: "var(--text-muted)", background: "var(--bg-tertiary)", border: "none", cursor: "pointer", padding: 6, borderRadius: 8 }}
-              >
-                <X size={18} />
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 12,
+                marginBottom: 22,
+              }}
+            >
+              <div>
+                <p className="stat-label" style={{ marginBottom: 8 }}>
+                  Community Controls
+                </p>
+                <h3
+                  style={{
+                    fontFamily: "var(--font-display)",
+                    fontSize: 32,
+                    letterSpacing: "-0.05em",
+                  }}
+                >
+                  {activeModal === "edit" && "Edit community"}
+                  {activeModal === "members" && "Manage members"}
+                  {activeModal === "delete" && "Delete community"}
+                </h3>
+              </div>
+              <button type="button" onClick={() => setActiveModal(null)} className="btn btn-ghost btn-sm">
+                <X size={16} />
               </button>
             </div>
 
             {activeModal === "edit" && (
-              <form onSubmit={handleUpdate} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+              <form onSubmit={handleUpdate} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 <div>
-                  <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--text-muted)", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Community Name</label>
+                  <label className="label">Community Name</label>
                   <input
                     type="text"
                     className="input"
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(event) => setFormData({ ...formData, name: event.target.value })}
                     required
                   />
                 </div>
                 <div>
-                  <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--text-muted)", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>About this space</label>
+                  <label className="label">Description</label>
                   <textarea
                     className="input"
                     value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    required
+                    onChange={(event) => setFormData({ ...formData, description: event.target.value })}
                     rows={4}
-                    style={{ resize: "none" }}
+                    required
                   />
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                <div className="settings-fields-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 16 }}>
                   <div>
-                    <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--text-muted)", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Category</label>
+                    <label className="label">Category</label>
                     <select
                       className="input"
                       value={formData.category}
-                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                      onChange={(event) => setFormData({ ...formData, category: event.target.value })}
                     >
                       <option value="communication">Communication</option>
                       <option value="personality">Personality</option>
@@ -312,25 +267,22 @@ export default function CommunitySettings({
                     </select>
                   </div>
                   <div>
-                    <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--text-muted)", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>Member Limit</label>
+                    <label className="label">Member Limit</label>
                     <input
                       type="number"
                       className="input"
                       value={formData.maxMembers}
-                      onChange={(e) => setFormData({ ...formData, maxMembers: parseInt(e.target.value) })}
+                      onChange={(event) =>
+                        setFormData({ ...formData, maxMembers: parseInt(event.target.value, 10) })
+                      }
                       min={2}
                       max={100}
                       required
                     />
                   </div>
                 </div>
-                <button 
-                  type="submit" 
-                  disabled={isLoading} 
-                  className="btn btn-primary"
-                  style={{ marginTop: 12, width: "100%", height: 48, fontSize: 15, fontWeight: 600 }}
-                >
-                  {isLoading ? "Synchronizing..." : "Update Details"}
+                <button type="submit" disabled={isLoading} className="btn btn-primary">
+                  {isLoading ? "Saving..." : "Save changes"}
                 </button>
               </form>
             )}
@@ -338,38 +290,65 @@ export default function CommunitySettings({
             {activeModal === "members" && (
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 {memberList.length === 0 ? (
-                  <div style={{ textAlign: "center", padding: "40px 0", color: "var(--text-muted)" }}>
-                    <Users size={32} style={{ margin: "0 auto 12px", opacity: 0.2 }} />
-                    <p style={{ fontSize: 14 }}>No other members yet.</p>
+                  <div className="card" style={{ padding: 28, textAlign: "center" }}>
+                    <Users size={28} style={{ margin: "0 auto 12px" }} />
+                    <p style={{ color: "var(--text-secondary)" }}>No other members yet.</p>
                   </div>
                 ) : (
-                  memberList.map(member => (
-                    <div 
+                  memberList.map((member) => (
+                    <div
                       key={member._id}
-                      style={{ 
-                        display: "flex", 
-                        alignItems: "center", 
-                        justifyContent: "space-between", 
-                        padding: "12px 16px", 
-                        background: "var(--bg-tertiary)", 
-                        borderRadius: 12,
-                        border: "1px solid var(--border-primary)"
+                      className="card"
+                      style={{
+                        padding: 16,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        gap: 14,
                       }}
                     >
                       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                        <div style={{ width: 36, height: 36, borderRadius: 10, background: "var(--bg-primary)", border: "1px solid var(--border-primary)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700 }}>
-                          {member.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)}
+                        <div
+                          style={{
+                            width: 40,
+                            height: 40,
+                            borderRadius: 16,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            background: "rgba(255, 255, 255, 0.05)",
+                            border: "1px solid var(--border-primary)",
+                            fontWeight: 700,
+                            fontSize: 12,
+                          }}
+                        >
+                          {member.name
+                            .split(" ")
+                            .map((part) => part[0])
+                            .join("")
+                            .toUpperCase()
+                            .slice(0, 2)}
                         </div>
                         <div>
-                          <p style={{ fontSize: 14, fontWeight: 600 }}>{member.name}</p>
-                          <p style={{ fontSize: 11, color: "var(--text-muted)" }}>{member.role}</p>
+                          <p style={{ fontWeight: 700, marginBottom: 4 }}>{member.name}</p>
+                          <p style={{ color: "var(--text-secondary)", fontSize: 12 }}>
+                            {member.role} - {member.points} points
+                          </p>
                         </div>
                       </div>
                       <button
+                        type="button"
                         onClick={() => removeMember(member._id)}
-                        style={{ color: "#ff4d4d", background: "rgba(255, 77, 77, 0.05)", border: "none", cursor: "pointer", padding: 8, borderRadius: 8, transition: "all 0.2s" }}
                         className="remove-member-btn"
-                        title="Remove member"
+                        style={{
+                          width: 40,
+                          height: 40,
+                          borderRadius: 14,
+                          border: "1px solid rgba(255, 133, 116, 0.22)",
+                          background: "rgba(255, 133, 116, 0.08)",
+                          color: "var(--danger)",
+                          cursor: "pointer",
+                        }}
                       >
                         <UserMinus size={16} />
                       </button>
@@ -381,29 +360,40 @@ export default function CommunitySettings({
 
             {activeModal === "delete" && (
               <div style={{ textAlign: "center" }}>
-                <div style={{ width: 64, height: 64, borderRadius: 20, background: "rgba(255, 77, 77, 0.1)", color: "#ff4d4d", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
-                  <AlertTriangle size={32} />
+                <div
+                  style={{
+                    width: 66,
+                    height: 66,
+                    borderRadius: 24,
+                    margin: "0 auto 16px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    background: "rgba(255, 133, 116, 0.12)",
+                    color: "var(--danger)",
+                  }}
+                >
+                  <AlertTriangle size={30} />
                 </div>
-                <h4 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8, letterSpacing: "-0.01em" }}>Delete this community?</h4>
-                <p style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 32, lineHeight: 1.6 }}>
-                  This will permanently remove <strong>{community.name}</strong> and all scheduled meetings. This action is irreversible.
+                <p style={{ color: "var(--text-secondary)", lineHeight: 1.8, marginBottom: 20 }}>
+                  This will permanently remove <strong>{community.name}</strong> and
+                  all of its scheduled meetings.
                 </p>
-                <div style={{ display: "flex", gap: 12 }}>
-                  <button 
-                    onClick={() => setActiveModal(null)} 
-                    disabled={isLoading}
-                    className="btn btn-secondary"
-                    style={{ flex: 1, height: 44 }}
-                  >
-                    Keep it
+                <div className="settings-danger-actions" style={{ display: "flex", gap: 10 }}>
+                  <button type="button" onClick={() => setActiveModal(null)} className="btn btn-secondary">
+                    Keep community
                   </button>
-                  <button 
-                    onClick={handleDelete} 
+                  <button
+                    type="button"
+                    onClick={handleDelete}
                     disabled={isLoading}
                     className="btn"
-                    style={{ flex: 1, height: 44, background: "#ff4d4d", color: "white", fontWeight: 600 }}
+                    style={{
+                      background: "var(--danger)",
+                      color: "#190806",
+                    }}
                   >
-                    {isLoading ? "Deleting..." : "Delete Permanently"}
+                    {isLoading ? "Deleting..." : "Delete permanently"}
                   </button>
                 </div>
               </div>
@@ -411,7 +401,22 @@ export default function CommunitySettings({
           </div>
         </div>
       )}
-
     </div>
   );
 }
+
+const menuButtonStyle: React.CSSProperties = {
+  width: "100%",
+  display: "flex",
+  alignItems: "center",
+  gap: 10,
+  padding: "12px 12px",
+  border: "none",
+  borderRadius: 14,
+  background: "transparent",
+  color: "var(--text-primary)",
+  cursor: "pointer",
+  fontSize: 14,
+  fontWeight: 600,
+  textAlign: "left",
+};

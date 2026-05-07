@@ -10,6 +10,10 @@ export interface ICommunity extends Document {
   maxMembers: number;
   tags: string[];
   meetings: Types.ObjectId[];
+  pinnedNotes: { title: string; body: string; updatedAt: Date }[];
+  resources: { title: string; url: string; description: string }[];
+  announcements: { body: string; createdAt: Date }[];
+  weeklyGoals: { text: string; done: boolean }[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -52,6 +56,44 @@ const CommunitySchema = new Schema<ICommunity>(
     },
     meetings: {
       type: [{ type: Schema.Types.ObjectId, ref: "Meeting" }],
+      default: [],
+    },
+    pinnedNotes: {
+      type: [
+        {
+          title: { type: String, required: true, trim: true, maxlength: 80 },
+          body: { type: String, default: "", trim: true, maxlength: 800 },
+          updatedAt: { type: Date, default: Date.now },
+        },
+      ],
+      default: [],
+    },
+    resources: {
+      type: [
+        {
+          title: { type: String, required: true, trim: true, maxlength: 80 },
+          url: { type: String, required: true, trim: true, maxlength: 300 },
+          description: { type: String, default: "", trim: true, maxlength: 180 },
+        },
+      ],
+      default: [],
+    },
+    announcements: {
+      type: [
+        {
+          body: { type: String, required: true, trim: true, maxlength: 300 },
+          createdAt: { type: Date, default: Date.now },
+        },
+      ],
+      default: [],
+    },
+    weeklyGoals: {
+      type: [
+        {
+          text: { type: String, required: true, trim: true, maxlength: 140 },
+          done: { type: Boolean, default: false },
+        },
+      ],
       default: [],
     },
   },

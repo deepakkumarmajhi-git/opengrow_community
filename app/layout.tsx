@@ -15,9 +15,17 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "OpenGrow — Community Discussion Platform",
+  title: "OpenGrow - Community Discussion Platform",
   description:
     "Join communities, participate in scheduled video discussions, and grow your communication skills with real people.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/icon.png",
+  },
   keywords: [
     "community",
     "discussion",
@@ -34,7 +42,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${outfit.variable}`} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${inter.variable} ${outfit.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         <script
           dangerouslySetInnerHTML={{

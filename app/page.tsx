@@ -1,10 +1,34 @@
+import Link from "next/link";
+import { ArrowRight, Search, UserPlus, Video } from "lucide-react";
 import Navbar from "@/app/components/landing/Navbar";
 import Hero from "@/app/components/landing/Hero";
 import Features from "@/app/components/landing/Features";
 import Stats from "@/app/components/landing/Stats";
 import Footer from "@/app/components/landing/Footer";
-import Link from "next/link";
-import { ArrowRight, UserPlus, Search, Video } from "lucide-react";
+
+const steps = [
+  {
+    step: "01",
+    icon: UserPlus,
+    title: "Join with intent",
+    description:
+      "Create an account, choose your role, and step into a space that matches how you want to grow.",
+  },
+  {
+    step: "02",
+    icon: Search,
+    title: "Find your room",
+    description:
+      "Browse communities by topic and energy, then join the ones where real participation is already happening.",
+  },
+  {
+    step: "03",
+    icon: Video,
+    title: "Practice live",
+    description:
+      "Show up to scheduled discussions, speak with other members, and review the insights after each session.",
+  },
+];
 
 export default function LandingPage() {
   return (
@@ -14,179 +38,160 @@ export default function LandingPage() {
       <Features />
       <Stats />
 
-      {/* How it Works */}
-      <section
-        id="how-it-works"
-        style={{
-          padding: "100px 24px",
-          maxWidth: 1000,
-          margin: "0 auto",
-        }}
-      >
-        <div style={{ textAlign: "center", marginBottom: 64 }}>
-          <h2
+      <section id="how-it-works" style={{ padding: "0 0 96px" }}>
+        <div className="section-shell">
+          <div
+            className="section-heading"
             style={{
-              fontSize: "clamp(28px, 3.5vw, 40px)",
-              marginBottom: 12,
+              display: "flex",
+              flexDirection: "column",
+              gap: 10,
+              marginBottom: 30,
             }}
           >
-            How it works
-          </h2>
-          <p
-            style={{
-              fontSize: 16,
-              color: "var(--text-secondary)",
-              maxWidth: 460,
-              margin: "0 auto",
-            }}
-          >
-            Three simple steps to start growing your communication skills.
-          </p>
-        </div>
+            <span className="eyebrow">Flow</span>
+            <h2 style={{ fontSize: "clamp(34px, 5vw, 58px)" }}>
+              A clean path from curiosity to confident participation.
+            </h2>
+            <p>
+              The product now guides people through a more intentional journey:
+              discover, commit, and show up prepared.
+            </p>
+          </div>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-            gap: 24,
-          }}
-        >
-          {[
-            {
-              step: "01",
-              icon: UserPlus,
-              title: "Create Your Account",
-              desc: "Sign up in seconds. Choose your role — student, developer, professional, or teacher.",
-            },
-            {
-              step: "02",
-              icon: Search,
-              title: "Discover & Join",
-              desc: "Browse communities by interest. Join ones that match your goals and start connecting.",
-            },
-            {
-              step: "03",
-              icon: Video,
-              title: "Join Meetings & Grow",
-              desc: "Attend scheduled video discussions. Share ideas, listen to others, and improve together.",
-            },
-          ].map((item) => {
-            const Icon = item.icon;
-            return (
-              <div
-                key={item.step}
-                className="card"
-                style={{
-                  textAlign: "center",
-                  padding: 32,
-                  position: "relative",
-                }}
-              >
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))",
+              gap: 18,
+            }}
+          >
+            {steps.map((item) => {
+              const Icon = item.icon;
+
+              return (
                 <div
+                  key={item.step}
+                  className="card"
                   style={{
-                    fontSize: 48,
-                    fontWeight: 800,
-                    color: "var(--accent-muted)",
-                    position: "absolute",
-                    top: 16,
-                    right: 20,
-                    opacity: 0.5,
-                    lineHeight: 1,
-                  }}
-                >
-                  {item.step}
-                </div>
-                <div
-                  style={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: "var(--radius-lg)",
-                    background: "var(--accent-muted)",
+                    minHeight: 250,
                     display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    margin: "0 auto 20px",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    gap: 16,
                   }}
                 >
-                  <Icon size={22} color="var(--accent)" />
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: 12,
+                    }}
+                  >
+                    <span
+                      className="badge-outline"
+                      style={{
+                        background: "rgba(255, 255, 255, 0.03)",
+                        color: "var(--text-primary)",
+                      }}
+                    >
+                      Step {item.step}
+                    </span>
+                    <div
+                      style={{
+                        width: 50,
+                        height: 50,
+                        borderRadius: 18,
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        background:
+                          "linear-gradient(135deg, rgba(132, 240, 184, 0.18), rgba(245, 184, 109, 0.15))",
+                        border: "1px solid var(--border-secondary)",
+                      }}
+                    >
+                      <Icon size={22} />
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3
+                      style={{
+                        fontFamily: "var(--font-display)",
+                        fontSize: 26,
+                        fontWeight: 700,
+                        letterSpacing: "-0.04em",
+                        marginBottom: 10,
+                      }}
+                    >
+                      {item.title}
+                    </h3>
+                    <p
+                      style={{
+                        color: "var(--text-secondary)",
+                        fontSize: 15,
+                        lineHeight: 1.75,
+                      }}
+                    >
+                      {item.description}
+                    </p>
+                  </div>
                 </div>
-                <h3
-                  style={{
-                    fontSize: 17,
-                    fontWeight: 600,
-                    marginBottom: 8,
-                  }}
-                >
-                  {item.title}
-                </h3>
-                <p
-                  style={{
-                    fontSize: 14,
-                    color: "var(--text-secondary)",
-                    lineHeight: 1.7,
-                  }}
-                >
-                  {item.desc}
-                </p>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section
-        style={{
-          padding: "80px 24px",
-          textAlign: "center",
-          background: "var(--bg-secondary)",
-          borderTop: "1px solid var(--border-primary)",
-          borderBottom: "1px solid var(--border-primary)",
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        {/* Subtle glow */}
-        <div
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 400,
-            height: 400,
-            background:
-              "radial-gradient(circle, var(--accent-glow) 0%, transparent 70%)",
-            opacity: 0.2,
-            borderRadius: "50%",
-            filter: "blur(60px)",
-            pointerEvents: "none",
-          }}
-        />
-        <div style={{ position: "relative", zIndex: 1 }}>
-          <h2
+      <section style={{ padding: "0 0 26px" }}>
+        <div className="section-shell">
+          <div
+            className="card"
             style={{
-              fontSize: "clamp(28px, 3.5vw, 40px)",
-              marginBottom: 16,
+              padding: "34px clamp(24px, 4vw, 44px)",
+              borderRadius: 36,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 18,
+              flexWrap: "wrap",
+              background:
+                "linear-gradient(135deg, rgba(132, 240, 184, 0.16), rgba(245, 184, 109, 0.14)), var(--bg-card)",
             }}
           >
-            Ready to start growing?
-          </h2>
-          <p
-            style={{
-              fontSize: 16,
-              color: "var(--text-secondary)",
-              maxWidth: 480,
-              margin: "0 auto 32px",
-            }}
-          >
-            Join thousands of professionals who are improving their
-            communication skills through community discussions.
-          </p>
-          <Link href="/signup" className="btn btn-primary btn-lg">
-            Join OpenGrow — It&apos;s Free
-            <ArrowRight size={16} />
-          </Link>
+            <div style={{ maxWidth: 680 }}>
+              <span className="eyebrow" style={{ marginBottom: 14 }}>
+                Ready to begin
+              </span>
+              <h2
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: "clamp(32px, 5vw, 54px)",
+                  lineHeight: 0.95,
+                  letterSpacing: "-0.05em",
+                }}
+              >
+                Build a community people actually return to.
+              </h2>
+              <p
+                style={{
+                  marginTop: 16,
+                  color: "var(--text-secondary)",
+                  fontSize: 16,
+                  lineHeight: 1.75,
+                }}
+              >
+                Join OpenGrow and create a stronger rhythm around speaking,
+                listening, and learning together.
+              </p>
+            </div>
+
+            <Link href="/signup" className="btn btn-primary btn-lg">
+              Join OpenGrow
+              <ArrowRight size={16} />
+            </Link>
+          </div>
         </div>
       </section>
 

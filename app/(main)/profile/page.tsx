@@ -1,23 +1,17 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { 
-  User, 
-  Mail, 
-  Shield, 
-  Star, 
-  Save, 
-  Loader2, 
-  Camera, 
-  Calendar, 
-  LogOut, 
-  ChevronRight, 
+import { useEffect, useRef, useState } from "react";
+import {
   Award,
-  Zap,
-  Settings,
+  Camera,
+  Calendar,
+  Loader2,
+  LogOut,
   Moon,
+  Save,
+  Star,
   Sun,
-  Layout
+  Zap,
 } from "lucide-react";
 import { logout } from "@/app/actions/auth";
 
@@ -35,6 +29,22 @@ interface UserData {
   createdAt: string;
 }
 
+interface GrowthTimelineItem {
+  _id: string;
+  overallScore: number;
+  summary?: string;
+  badgesEarned?: string[];
+  createdAt: string;
+  meetingId?: {
+    _id: string;
+    title: string;
+    topic?: string;
+    scheduledAt: string;
+    template?: string;
+    community?: { name: string };
+  };
+}
+
 export default function ProfilePage() {
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -42,55 +52,56 @@ export default function ProfilePage() {
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
   const [avatar, setAvatar] = useState("");
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
+  const [timeline, setTimeline] = useState<GrowthTimelineItem[]>([]);
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    if (typeof window === "undefined") return "light";
+
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "light" || savedTheme === "dark") {
+      return savedTheme;
+    }
+
+    return document.documentElement.getAttribute("data-theme") === "dark"
+      ? "dark"
+      : "light";
+  });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // Fetch profile data
-    fetch("/api/user/profile")
-      .then((res) => res.json())
-      .then((data) => {
-        setUser(data.user);
-        setName(data.user?.name || "");
-        setBio(data.user?.bio || "");
-        setAvatar(data.user?.avatar || "");
+    Promise.all([
+      fetch("/api/user/profile").then((response) => response.json()),
+      fetch("/api/user/growth").then((response) => response.json()),
+    ])
+      .then(([profileData, growthData]) => {
+        setUser(profileData.user);
+        setName(profileData.user?.name || "");
+        setBio(profileData.user?.bio || "");
+        setAvatar(profileData.user?.avatar || "");
+        setTimeline(growthData.timeline || []);
       })
       .catch(console.error)
       .finally(() => setLoading(false));
-
-    // Detect theme
-    const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
-    if (savedTheme) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setTheme(savedTheme);
-    } else {
-      const isDark = document.documentElement.getAttribute("data-theme") !== "light";
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setTheme(isDark ? "dark" : "light");
-    }
   }, []);
 
   const toggleTheme = () => {
-    const newTheme = theme === "dark" ? "light" : "dark";
-    setTheme(newTheme);
-    localStorage.setItem("theme", newTheme);
-    if (newTheme === "light") {
-      document.documentElement.setAttribute("data-theme", "light");
-    } else {
-      document.documentElement.removeAttribute("data-theme");
-    }
+    const nextTheme = theme === "dark" ? "light" : "dark";
+    setTheme(nextTheme);
+    localStorage.setItem("theme", nextTheme);
+
+    document.documentElement.setAttribute("data-theme", nextTheme);
   };
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      const res = await fetch("/api/user/profile", {
+      const response = await fetch("/api/user/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, bio, avatar }),
       });
-      if (res.ok) {
-        const data = await res.json();
+
+      if (response.ok) {
+        const data = await response.json();
         setUser(data.user);
       }
     } finally {
@@ -98,8 +109,8 @@ export default function ProfilePage() {
     }
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (!file) return;
 
     if (file.size > 2 * 1024 * 1024) {
@@ -108,24 +119,21 @@ export default function ProfilePage() {
     }
 
     const reader = new FileReader();
-    reader.onloadend = () => {
-      setAvatar(reader.result as string);
-    };
+    reader.onloadend = () => setAvatar(reader.result as string);
     reader.readAsDataURL(file);
   };
 
   if (loading) {
     return (
       <div
-        style={{ 
-          height: "100vh", 
-          display: "flex", 
-          alignItems: "center", 
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
           justifyContent: "center",
-          background: "var(--bg-primary)"
         }}
       >
-        <Loader2 size={32} className="animate-spin" style={{ color: "var(--accent)" }} />
+        <Loader2 size={30} className="animate-spin" />
       </div>
     );
   }
@@ -134,297 +142,357 @@ export default function ProfilePage() {
 
   const initials = user.name
     .split(" ")
-    .map((n) => n[0])
+    .map((part) => part[0])
     .join("")
     .toUpperCase()
     .slice(0, 2);
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
-      {/* Hero Header */}
-      <div className="hero-gradient" style={{ paddingTop: 80, paddingBottom: 60, position: "relative" }}>
-        <div className="page-container" style={{ paddingTop: 0, paddingBottom: 0, display: "flex", alignItems: "center", gap: 40, flexWrap: "wrap" }}>
-          
-          {/* Avatar Area */}
-          <div style={{ position: "relative" }}>
-            <div
+    <div className="page-container">
+      <div
+        className="card profile-hero-row"
+        style={{
+          marginBottom: 28,
+          padding: "28px clamp(22px, 4vw, 34px)",
+          display: "flex",
+          alignItems: "center",
+          gap: 24,
+          flexWrap: "wrap",
+          background:
+            "linear-gradient(135deg, rgba(132, 240, 184, 0.14), rgba(245, 184, 109, 0.1)), var(--bg-card)",
+        }}
+      >
+        <div style={{ position: "relative" }}>
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            style={{
+              width: 132,
+              height: 132,
+              borderRadius: 36,
+              border: "1px solid var(--border-secondary)",
+              background: avatar ? `url(${avatar}) center/cover` : "rgba(255, 255, 255, 0.05)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontFamily: "var(--font-display)",
+              fontSize: 40,
+              fontWeight: 700,
+              cursor: "pointer",
+              overflow: "hidden",
+              position: "relative",
+            }}
+          >
+            {!avatar && initials}
+            <span
               style={{
-                width: 140,
-                height: 140,
-                borderRadius: 40,
-                background: "var(--bg-card)",
-                padding: 4,
-                boxShadow: "var(--shadow-lg)",
-                border: "1px solid var(--border-secondary)"
+                position: "absolute",
+                inset: "auto 10px 10px auto",
+                width: 36,
+                height: 36,
+                borderRadius: 14,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "rgba(4, 11, 9, 0.7)",
+                border: "1px solid var(--border-primary)",
               }}
             >
-              <div
-                onClick={() => fileInputRef.current?.click()}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  borderRadius: 36,
-                  background: avatar ? `url(${avatar}) center/cover` : "var(--accent-muted)",
-                  color: "var(--accent)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontWeight: 800,
-                  fontSize: 48,
-                  cursor: "pointer",
-                  position: "relative",
-                  overflow: "hidden",
-                }}
-              >
-                {!avatar && initials}
-                <div
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    background: "rgba(0,0,0,0.6)",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    opacity: 0,
-                    transition: "opacity 0.2s",
-                  }}
-                  className="avatar-overlay"
-                  onMouseEnter={(e) => {
-                    const overlay = e.currentTarget as HTMLElement;
-                    overlay.style.opacity = "1";
-                  }}
-                  onMouseLeave={(e) => {
-                    const overlay = e.currentTarget as HTMLElement;
-                    overlay.style.opacity = "0";
-                  }}
-                >
-                  <Camera size={24} color="#fff" />
-                </div>
-              </div>
-            </div>
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleImageUpload}
-              accept="image/*"
-              style={{ display: "none" }}
-            />
+              <Camera size={16} />
+            </span>
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            onChange={handleImageUpload}
+            accept="image/*"
+            style={{ display: "none" }}
+          />
+        </div>
+
+        <div style={{ flex: 1, minWidth: 280 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
+            <span className="badge-outline">{user.role}</span>
+            <span
+              style={{
+                color: "var(--text-secondary)",
+                fontSize: 13,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              <Calendar size={14} />
+              Joined{" "}
+              {new Date(user.createdAt).toLocaleDateString("en-US", {
+                month: "long",
+                year: "numeric",
+              })}
+            </span>
           </div>
 
-          <div style={{ flex: 1, minWidth: 300 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
-              <span className="badge-outline" style={{ background: "rgba(255,255,255,0.05)" }}>
-                {user.role}
-              </span>
-              <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 6 }}>
-                <Calendar size={14} />
-                Joined {new Date(user.createdAt).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
-              </span>
-            </div>
-            <h1 style={{ fontSize: "clamp(32px, 5vw, 48px)", fontWeight: 800, marginBottom: 8, letterSpacing: "-0.04em" }}>
-              {user.name}
-            </h1>
-            <p style={{ fontSize: 18, color: "var(--text-secondary)", maxWidth: 600, lineHeight: 1.6 }}>
-              {user.bio || "No bio added yet. Tell the community about yourself."}
-            </p>
-          </div>
+          <h1
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "clamp(34px, 5vw, 52px)",
+              lineHeight: 0.95,
+              letterSpacing: "-0.05em",
+              marginBottom: 12,
+            }}
+          >
+            {user.name}
+          </h1>
+          <p style={{ color: "var(--text-secondary)", lineHeight: 1.8, fontSize: 16 }}>
+            {user.bio || "No bio yet. Add a short description so communities know what you bring to the room."}
+          </p>
         </div>
       </div>
 
-      <div className="page-container" style={{ paddingTop: 60, paddingBottom: 100 }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 350px", gap: 60, alignItems: "start" }}>
-          
-          {/* Main Content - Settings */}
-          <div>
-            <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 32, display: "flex", alignItems: "center", gap: 10 }}>
-              <Settings size={22} />
-              Account Settings
-            </h2>
-
-            <div className="glass-panel" style={{ padding: 40, display: "flex", flexDirection: "column", gap: 32 }}>
-              
-              {/* Theme Toggle */}
-              <div>
-                <label className="label-minimal">Interface Aesthetics</label>
-                <div style={{ display: "flex", gap: 12, marginTop: 12 }}>
-                  <button 
-                    onClick={() => theme === "light" && toggleTheme()}
-                    style={{ 
-                      flex: 1, 
-                      padding: "16px", 
-                      borderRadius: 12, 
-                      background: theme === "dark" ? "var(--bg-tertiary)" : "transparent",
-                      border: theme === "dark" ? "1px solid var(--border-secondary)" : "1px solid var(--border-primary)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: 10,
-                      cursor: "pointer",
-                      transition: "all 0.2s"
-                    }}
-                  >
-                    <Moon size={18} color={theme === "dark" ? "var(--text-primary)" : "var(--text-muted)"} />
-                    <span style={{ fontSize: 14, fontWeight: 600, color: theme === "dark" ? "var(--text-primary)" : "var(--text-muted)" }}>Dark Gray</span>
-                  </button>
-                  <button 
-                    onClick={() => theme === "dark" && toggleTheme()}
-                    style={{ 
-                      flex: 1, 
-                      padding: "16px", 
-                      borderRadius: 12, 
-                      background: theme === "light" ? "var(--bg-tertiary)" : "transparent",
-                      border: theme === "light" ? "1px solid var(--border-secondary)" : "1px solid var(--border-primary)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: 10,
-                      cursor: "pointer",
-                      transition: "all 0.2s"
-                    }}
-                  >
-                    <Sun size={18} color={theme === "light" ? "var(--text-primary)" : "var(--text-muted)"} />
-                    <span style={{ fontSize: 14, fontWeight: 600, color: theme === "light" ? "var(--text-primary)" : "var(--text-muted)" }}>Light Mode</span>
-                  </button>
-                </div>
-              </div>
-
-              <div style={{ height: 1, background: "var(--border-primary)" }} />
-
-              <div>
-                <label className="label-minimal">Full Identity Name</label>
-                <input
-                  className="input-minimal"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="How should the community address you?"
-                  style={{ fontSize: 18, padding: "12px 0" }}
-                />
-              </div>
-
-              <div>
-                <label className="label-minimal">Biography & Experience</label>
-                <textarea
-                  className="input-minimal"
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
-                  rows={4}
-                  placeholder="Share your journey..."
-                  style={{ resize: "none", fontSize: 15, lineHeight: 1.6 }}
-                  maxLength={300}
-                />
-                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 8 }}>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: bio.length > 280 ? "var(--danger)" : "var(--text-muted)" }}>
-                    {bio.length}/300
-                  </span>
-                </div>
-              </div>
-
-              <div style={{ paddingTop: 20 }}>
-                <button
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="btn btn-primary"
-                  style={{ height: 52, padding: "0 40px", fontSize: 15, fontWeight: 600 }}
-                >
-                  {saving ? "Synchronizing..." : "Update Profile"}
-                  {!saving && <Save size={18} />}
-                </button>
-              </div>
-            </div>
-
-            {/* Danger Zone */}
-            <div style={{ marginTop: 60 }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: "var(--danger)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 20 }}>
-                Session Security
-              </h3>
-              <div 
-                className="glass-panel" 
-                style={{ 
-                  padding: 24, 
-                  borderColor: "rgba(239, 68, 68, 0.2)", 
-                  display: "flex", 
-                  alignItems: "center", 
-                  justifyContent: "space-between" 
+      <div
+        className="profile-content-grid"
+        style={{
+          display: "grid",
+          gridTemplateColumns: "minmax(0, 1.4fr) minmax(300px, 0.85fr)",
+          gap: 24,
+          alignItems: "start",
+        }}
+      >
+        <section>
+          <div className="card" style={{ padding: "26px clamp(20px, 4vw, 30px)" }}>
+            <div style={{ marginBottom: 24 }}>
+              <p className="stat-label" style={{ marginBottom: 10 }}>
+                Account Settings
+              </p>
+              <h2
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: 32,
+                  letterSpacing: "-0.05em",
+                  marginBottom: 10,
                 }}
               >
-                <div>
-                  <h4 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", marginBottom: 4 }}>End Session</h4>
-                  <p style={{ fontSize: 13, color: "var(--text-muted)" }}>Sign out of your account on this device.</p>
-                </div>
-                <form action={logout}>
+                Keep your profile current.
+              </h2>
+              <p style={{ color: "var(--text-secondary)", lineHeight: 1.75 }}>
+                A more polished profile gives your communities context before you even speak.
+              </p>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+              <div>
+                <label className="label">Interface Theme</label>
+                <div className="profile-theme-grid" style={{ display: "flex", gap: 10 }}>
                   <button
-                    type="submit"
+                    type="button"
+                    onClick={() => theme === "light" && toggleTheme()}
                     className="btn btn-secondary"
-                    style={{ 
-                      borderColor: "rgba(239, 68, 68, 0.3)", 
-                      color: "#ff4d4d", 
-                      padding: "10px 24px",
-                      fontWeight: 600
+                    style={{
+                      flex: 1,
+                      background: theme === "dark" ? "rgba(255, 255, 255, 0.08)" : undefined,
                     }}
                   >
-                    <LogOut size={18} />
-                    Sign Out
+                    <Moon size={16} />
+                    Dark
                   </button>
-                </form>
+                  <button
+                    type="button"
+                    onClick={() => theme === "dark" && toggleTheme()}
+                    className="btn btn-secondary"
+                    style={{
+                      flex: 1,
+                      background: theme === "light" ? "rgba(255, 255, 255, 0.08)" : undefined,
+                    }}
+                  >
+                    <Sun size={16} />
+                    Light
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="label">Full Name</label>
+                <input
+                  className="input"
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  placeholder="How should people know you?"
+                />
+              </div>
+
+              <div>
+                <label className="label">Bio</label>
+                <textarea
+                  className="input"
+                  value={bio}
+                  onChange={(event) => setBio(event.target.value)}
+                  rows={5}
+                  placeholder="Tell the community what you care about and what kind of conversations you enjoy."
+                  maxLength={300}
+                />
+                <div style={{ marginTop: 8, textAlign: "right", color: "var(--text-muted)", fontSize: 12 }}>
+                  {bio.length}/300
+                </div>
+              </div>
+
+              <button type="button" onClick={handleSave} disabled={saving} className="btn btn-primary">
+                {saving ? "Saving..." : "Save profile"}
+                {!saving && <Save size={16} />}
+              </button>
+            </div>
+          </div>
+
+          <div className="card profile-security-panel" style={{ marginTop: 20, padding: 24, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 18 }}>
+            <div>
+              <p className="stat-label" style={{ marginBottom: 8, color: "var(--danger)" }}>
+                Session Control
+              </p>
+              <h3 style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.03em", marginBottom: 6 }}>
+                Sign out on this device
+              </h3>
+              <p style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}>
+                End your current session safely when you are done.
+              </p>
+            </div>
+            <form action={logout}>
+              <button type="submit" className="btn btn-secondary">
+                <LogOut size={16} />
+                Sign out
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <aside style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div className="card">
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 18 }}>
+              <div
+                style={{
+                  width: 42,
+                  height: 42,
+                  borderRadius: 16,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "rgba(245, 184, 109, 0.16)",
+                }}
+              >
+                <Star size={18} color="var(--accent-warm)" />
+              </div>
+              <div>
+                <p className="stat-label" style={{ marginBottom: 6 }}>
+                  Contribution
+                </p>
+                <h3 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.04em" }}>
+                  {user.points.toLocaleString()}
+                </h3>
+              </div>
+            </div>
+            <p style={{ color: "var(--text-secondary)", fontSize: 14, lineHeight: 1.7 }}>
+              Your points reflect how consistently you participate in community discussions.
+            </p>
+          </div>
+
+          <div className="card">
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 18 }}>
+              <div
+                style={{
+                  width: 42,
+                  height: 42,
+                  borderRadius: 16,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "rgba(255, 133, 116, 0.16)",
+                }}
+              >
+                <Zap size={18} color="var(--danger)" />
+              </div>
+              <div>
+                <p className="stat-label" style={{ marginBottom: 6 }}>
+                  Streak
+                </p>
+                <h3 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.04em" }}>
+                  {user.streak} days
+                </h3>
+              </div>
+            </div>
+            <p style={{ color: "var(--text-secondary)", fontSize: 14, lineHeight: 1.7 }}>
+              Momentum matters. Keep showing up to retain your streak.
+            </p>
+          </div>
+
+          <div className="card">
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 18 }}>
+              <div
+                style={{
+                  width: 42,
+                  height: 42,
+                  borderRadius: 16,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "rgba(132, 240, 184, 0.16)",
+                }}
+              >
+                <Award size={18} color="var(--accent)" />
+              </div>
+              <div>
+                <p className="stat-label" style={{ marginBottom: 6 }}>
+                  Community Reach
+                </p>
+                <h3 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.04em" }}>
+                  {(user.joinedCommunities?.length || 0) + (user.createdCommunity ? 1 : 0)}
+                </h3>
+              </div>
+            </div>
+            <div style={{ display: "grid", gap: 10, color: "var(--text-secondary)", fontSize: 14 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
+                <span>Joined communities</span>
+                <strong>{user.joinedCommunities?.length || 0}</strong>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
+                <span>Hosted communities</span>
+                <strong>{user.createdCommunity ? 1 : 0}</strong>
               </div>
             </div>
           </div>
 
-          {/* Sidebar - Performance Stats */}
-          <aside>
-            <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 32, display: "flex", alignItems: "center", gap: 10 }}>
-              <Award size={22} />
-              Performance
-            </h2>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <div className="glass-panel" style={{ padding: 24 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-                  <div style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(245, 158, 11, 0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <Star size={20} color="#f59e0b" />
-                  </div>
-                  <div>
-                    <p style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>Contribution Points</p>
-                    <p style={{ fontSize: 24, fontWeight: 800 }}>{user.points.toLocaleString()}</p>
-                  </div>
-                </div>
-                <div style={{ height: 6, background: "var(--bg-tertiary)", borderRadius: 3, overflow: "hidden" }}>
-                  <div style={{ width: "65%", height: "100%", background: "#f59e0b", borderRadius: 3 }} />
-                </div>
-                <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 12, fontWeight: 500 }}>
-                  Top 12% of contributors this month
+          <div className="card">
+            <p className="stat-label" style={{ marginBottom: 12 }}>
+              Growth Timeline
+            </p>
+            <div style={{ display: "grid", gap: 12 }}>
+              {timeline.length === 0 ? (
+                <p style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}>
+                  Your coach journal will appear here after you open meeting reports.
                 </p>
-              </div>
-
-              <div className="glass-panel" style={{ padding: 24 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <div style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(239, 68, 68, 0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <Zap size={20} color="#ef4444" />
+              ) : (
+                timeline.slice(0, 5).map((item) => (
+                  <div key={item._id} className="card" style={{ padding: 14 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", gap: 10, marginBottom: 8 }}>
+                      <strong style={{ fontSize: 14 }}>
+                        {item.meetingId?.title || "Meeting report"}
+                      </strong>
+                      <span style={{ color: "var(--text-muted)", fontSize: 12 }}>
+                        {item.overallScore}
+                      </span>
+                    </div>
+                    <p style={{ color: "var(--text-secondary)", fontSize: 13, lineHeight: 1.6, marginBottom: 10 }}>
+                      {item.summary || "Coach summary saved for this session."}
+                    </p>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                      {(item.badgesEarned || []).slice(0, 2).map((badge) => (
+                        <span key={badge} className="badge-outline">
+                          {badge}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                  <div>
-                    <p style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>Active Streak</p>
-                    <p style={{ fontSize: 24, fontWeight: 800 }}>{user.streak} <span style={{ fontSize: 14, color: "var(--text-muted)", fontWeight: 500 }}>Days</span></p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="glass-panel" style={{ padding: 24 }}>
-                <p style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", marginBottom: 16 }}>Community Engagement</p>
-                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <span style={{ fontSize: 14, color: "var(--text-secondary)" }}>Joined Spaces</span>
-                    <span style={{ fontSize: 14, fontWeight: 700 }}>{user.joinedCommunities?.length || 0}</span>
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <span style={{ fontSize: 14, color: "var(--text-secondary)" }}>Managed Communities</span>
-                    <span style={{ fontSize: 14, fontWeight: 700 }}>{user.createdCommunity ? 1 : 0}</span>
-                  </div>
-                </div>
-              </div>
+                ))
+              )}
             </div>
-          </aside>
-        </div>
+          </div>
+        </aside>
       </div>
     </div>
   );

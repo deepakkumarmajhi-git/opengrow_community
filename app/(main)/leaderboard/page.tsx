@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Trophy, Medal, Crown } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Crown, Medal, Trophy } from "lucide-react";
 
 interface LeaderboardUser {
   _id: string;
@@ -16,18 +16,27 @@ export default function LeaderboardPage() {
 
   useEffect(() => {
     fetch("/api/leaderboard")
-      .then((res) => res.json())
+      .then((response) => response.json())
       .then((data) => setUsers(data.users || []))
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
 
   const getRankIcon = (rank: number) => {
-    if (rank === 1) return <Crown size={18} color="#f59e0b" />;
-    if (rank === 2) return <Medal size={18} color="#94a3b8" />;
-    if (rank === 3) return <Medal size={18} color="#d97706" />;
+    if (rank === 1) return <Crown size={18} color="var(--accent-warm)" />;
+    if (rank === 2) return <Medal size={18} color="var(--text-secondary)" />;
+    if (rank === 3) return <Medal size={18} color="var(--danger)" />;
+
     return (
-      <span style={{ fontSize: 14, color: "var(--text-muted)", fontWeight: 500, width: 18, textAlign: "center", display: "inline-block" }}>
+      <span
+        style={{
+          width: 18,
+          textAlign: "center",
+          color: "var(--text-muted)",
+          fontSize: 13,
+          fontWeight: 700,
+        }}
+      >
         {rank}
       </span>
     );
@@ -35,28 +44,48 @@ export default function LeaderboardPage() {
 
   return (
     <div className="page-container">
-      <div style={{ marginBottom: 32 }}>
-        <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 4 }}>
+      <div
+        className="card"
+        style={{
+          marginBottom: 24,
+          padding: "28px clamp(22px, 4vw, 34px)",
+          background:
+            "linear-gradient(135deg, rgba(245, 184, 109, 0.14), rgba(132, 240, 184, 0.08)), var(--bg-card)",
+        }}
+      >
+        <span className="eyebrow" style={{ marginBottom: 14 }}>
           Leaderboard
+        </span>
+        <h1
+          style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "clamp(34px, 5vw, 56px)",
+            lineHeight: 0.95,
+            letterSpacing: "-0.05em",
+            marginBottom: 12,
+          }}
+        >
+          The people carrying conversations forward.
         </h1>
-        <p style={{ fontSize: 15, color: "var(--text-muted)" }}>
-          Top contributors in the OpenGrow community
+        <p style={{ color: "var(--text-secondary)", fontSize: 16, lineHeight: 1.75, maxWidth: 720 }}>
+          A cleaner ranking experience makes contribution feel meaningful instead
+          of noisy. Celebrate consistency, not just volume.
         </p>
       </div>
 
       <div className="card" style={{ padding: 0, overflow: "hidden" }}>
-        {/* Header */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "60px 1fr 120px 100px",
-            padding: "12px 20px",
-            background: "var(--bg-tertiary)",
-            fontSize: 12,
-            fontWeight: 600,
+            gridTemplateColumns: "72px minmax(0, 1.3fr) 160px 120px",
+            gap: 12,
+            padding: "18px 22px",
+            borderBottom: "1px solid var(--border-primary)",
             color: "var(--text-muted)",
+            fontSize: 11,
+            fontWeight: 800,
+            letterSpacing: "0.12em",
             textTransform: "uppercase",
-            letterSpacing: "0.05em",
           }}
         >
           <span>Rank</span>
@@ -66,71 +95,90 @@ export default function LeaderboardPage() {
         </div>
 
         {loading ? (
-          <div style={{ padding: 40, textAlign: "center", color: "var(--text-muted)" }}>
-            Loading...
+          <div style={{ padding: 34, textAlign: "center", color: "var(--text-secondary)" }}>
+            Loading leaderboard...
           </div>
         ) : users.length === 0 ? (
-          <div style={{ padding: 40, textAlign: "center", color: "var(--text-muted)" }}>
-            <Trophy size={32} style={{ margin: "0 auto 8px", opacity: 0.5 }} />
-            <p>No users yet. Be the first!</p>
+          <div style={{ padding: 48, textAlign: "center", color: "var(--text-secondary)" }}>
+            <Trophy size={34} style={{ margin: "0 auto 12px" }} />
+            <p>No users yet. Be the first to build momentum.</p>
           </div>
         ) : (
-          users.map((user, idx) => (
+          users.map((user, index) => (
             <div
               key={user._id}
               style={{
                 display: "grid",
-                gridTemplateColumns: "60px 1fr 120px 100px",
-                padding: "14px 20px",
+                gridTemplateColumns: "72px minmax(0, 1.3fr) 160px 120px",
+                gap: 12,
                 alignItems: "center",
+                padding: "18px 22px",
                 borderTop: "1px solid var(--border-primary)",
-                background: idx < 3 ? "rgba(34, 197, 94, 0.02)" : "transparent",
+                background:
+                  index === 0
+                    ? "linear-gradient(135deg, rgba(245, 184, 109, 0.12), rgba(132, 240, 184, 0.06))"
+                    : "transparent",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center" }}>
-                {getRankIcon(idx + 1)}
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ display: "flex", alignItems: "center" }}>{getRankIcon(index + 1)}</div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
                 <div
                   style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: "var(--radius-md)",
-                    background: idx < 3 ? "var(--accent-muted)" : "var(--bg-tertiary)",
-                    color: idx < 3 ? "var(--accent)" : "var(--text-muted)",
+                    width: 42,
+                    height: 42,
+                    borderRadius: 16,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontWeight: 600,
-                    fontSize: 12,
+                    background:
+                      index < 3
+                        ? "linear-gradient(135deg, rgba(132, 240, 184, 0.18), rgba(245, 184, 109, 0.16))"
+                        : "rgba(255, 255, 255, 0.04)",
+                    border: "1px solid var(--border-primary)",
+                    fontWeight: 800,
+                    fontSize: 13,
+                    flexShrink: 0,
                   }}
                 >
                   {user.name
                     .split(" ")
-                    .map((n) => n[0])
+                    .map((part) => part[0])
                     .join("")
                     .toUpperCase()
                     .slice(0, 2)}
                 </div>
-                <span style={{ fontSize: 14, fontWeight: 500 }}>
-                  {user.name}
-                </span>
+                <div style={{ minWidth: 0 }}>
+                  <p
+                    style={{
+                      fontSize: 15,
+                      fontWeight: 700,
+                      color: "var(--text-primary)",
+                      marginBottom: 4,
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {user.name}
+                  </p>
+                  <p style={{ color: "var(--text-secondary)", fontSize: 12 }}>
+                    Active contributor
+                  </p>
+                </div>
               </div>
-              <span
-                style={{
-                  fontSize: 12,
-                  color: "var(--text-muted)",
-                  textTransform: "capitalize",
-                }}
-              >
+
+              <span style={{ color: "var(--text-secondary)", fontSize: 13, textTransform: "capitalize" }}>
                 {user.role}
               </span>
+
               <span
                 style={{
                   textAlign: "right",
-                  fontSize: 14,
-                  fontWeight: 600,
-                  color: idx < 3 ? "var(--accent)" : "var(--text-primary)",
+                  fontFamily: "var(--font-display)",
+                  fontSize: 26,
+                  fontWeight: 700,
+                  letterSpacing: "-0.04em",
                 }}
               >
                 {user.points.toLocaleString()}

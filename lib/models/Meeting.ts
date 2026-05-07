@@ -5,10 +5,26 @@ export interface IMeeting extends Document {
   title: string;
   description: string;
   topic: string;
+  template:
+    | "custom"
+    | "mock-interview"
+    | "debate"
+    | "group-discussion"
+    | "english-speaking"
+    | "product-pitch"
+    | "leadership-circle";
   community: Types.ObjectId;
   host: Types.ObjectId;
   scheduledAt: Date;
+  timezone: string;
   durationMinutes: number;
+  recurrence: "none" | "daily" | "weekly" | "monthly";
+  recurrenceGroupId: string;
+  reminderMinutes: number[];
+  availabilityOptions: {
+    startsAt: Date;
+    votes: Types.ObjectId[];
+  }[];
   status: "upcoming" | "active" | "completed";
   attendees: Types.ObjectId[];
   roomId: string;
@@ -33,6 +49,19 @@ const MeetingSchema = new Schema<IMeeting>(
       default: "",
       trim: true,
     },
+    template: {
+      type: String,
+      enum: [
+        "custom",
+        "mock-interview",
+        "debate",
+        "group-discussion",
+        "english-speaking",
+        "product-pitch",
+        "leadership-circle",
+      ],
+      default: "custom",
+    },
     community: {
       type: Schema.Types.ObjectId,
       ref: "Community",
@@ -47,9 +76,37 @@ const MeetingSchema = new Schema<IMeeting>(
       type: Date,
       required: true,
     },
+    timezone: {
+      type: String,
+      default: "UTC",
+      trim: true,
+    },
     durationMinutes: {
       type: Number,
       default: 30,
+    },
+    recurrence: {
+      type: String,
+      enum: ["none", "daily", "weekly", "monthly"],
+      default: "none",
+    },
+    recurrenceGroupId: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    reminderMinutes: {
+      type: [Number],
+      default: [60, 10],
+    },
+    availabilityOptions: {
+      type: [
+        {
+          startsAt: { type: Date, required: true },
+          votes: { type: [{ type: Schema.Types.ObjectId, ref: "User" }], default: [] },
+        },
+      ],
+      default: [],
     },
     status: {
       type: String,

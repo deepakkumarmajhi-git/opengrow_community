@@ -46,12 +46,12 @@ export default async function MainLayout({
   };
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh" }}>
+    <div className="app-shell">
       <Sidebar user={userData} />
       <main
+        className="app-main"
         style={{
           flex: 1,
-          marginLeft: 292, // 260px width + 16px left + 16px gap
           background: "transparent",
           minHeight: "100vh",
         }}
