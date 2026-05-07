@@ -275,7 +275,7 @@ export default async function MeetingReportPage({
               </span>
             </div>
             <div style={{ display: "grid", gap: 10 }}>
-              {r.fillerHeatmap.map(({ word, count, severity }) => (
+              {r.fillerHeatmap.map(({ word, count, severity }: { word: string; count: number; severity: string }) => (
                 <div key={word} style={{ display: "flex", alignItems: "center", gap: 12 }}>
                   <span
                     style={{
@@ -318,7 +318,7 @@ export default async function MeetingReportPage({
               Your Action Items
             </p>
             <div style={{ display: "grid", gap: 12 }}>
-              {r.actionItems.map((item, i) => (
+              {r.actionItems.map((item: string, i: number) => (
                 <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
                   <CheckCircle2 size={16} color="var(--accent)" style={{ marginTop: 2, flexShrink: 0 }} />
                   <p style={{ fontSize: 14, lineHeight: 1.65, color: "var(--text-soft)" }}>{item}</p>
@@ -355,7 +355,7 @@ export default async function MeetingReportPage({
               <p className="stat-label">Badges Earned</p>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {r.badgesEarned.map((badge) => (
+              {r.badgesEarned.map((badge: string) => (
                 <div
                   key={badge}
                   style={{
@@ -379,7 +379,7 @@ export default async function MeetingReportPage({
           <div className="card" style={{ padding: 22 }}>
             <p className="stat-label" style={{ marginBottom: 16 }}>Next Session Goals</p>
             <div style={{ display: "grid", gap: 10 }}>
-              {r.nextGoals.map((goal, i) => (
+              {r.nextGoals.map((goal: string, i: number) => (
                 <div
                   key={i}
                   style={{
