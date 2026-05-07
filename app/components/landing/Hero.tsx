@@ -2,18 +2,13 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, Play, Sparkles, Users } from "lucide-react";
+import { ArrowRight, Play, Sparkles } from "lucide-react";
 
-const roles = ["Students", "Developers", "Professionals", "Teachers"];
-const highlights = [
-  "Structured live rooms",
-  "AI session feedback",
-  "Communities with momentum",
-];
+const roles = ["you", "people", "Students", "Developers", "Professionals", "Teachers"];
 
 export default function Hero() {
   const [roleIndex, setRoleIndex] = useState(0);
-  const [displayText, setDisplayText] = useState("");
+  const [displayText, setDisplayText] = useState("you");
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
@@ -46,241 +41,160 @@ export default function Hero() {
     <section
       style={{
         position: "relative",
-        overflow: "hidden",
-        padding: "132px 0 72px",
+        padding: "160px 24px 100px",
+        textAlign: "center",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
       }}
     >
-      <div className="section-shell">
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "minmax(0, 1.08fr) minmax(320px, 0.92fr)",
-            gap: 34,
+      <div 
+        className="animate-fade-in"
+        style={{
+          maxWidth: 900,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <div 
+          className="badge" 
+          style={{ 
+            marginBottom: 24,
+            padding: "6px 12px",
+            border: "1px solid var(--border-primary)",
+            background: "var(--bg-tertiary)",
+            color: "var(--text-secondary)",
+            fontSize: 12,
+            fontWeight: 500,
+            borderRadius: 100,
+            display: "flex",
             alignItems: "center",
+            gap: 8
           }}
         >
-          <div className="animate-fade-in">
-            <div className="badge" style={{ marginBottom: 20 }}>
-              <Play size={12} fill="currentColor" />
-              Live community practice rooms
+          <Sparkles size={12} />
+          The future of community-driven practice
+        </div>
+
+        <h1
+          style={{
+            fontSize: "clamp(48px, 8vw, 84px)",
+            fontWeight: 600,
+            lineHeight: 1.05,
+            letterSpacing: "-0.04em",
+            marginBottom: 24,
+            color: "var(--text-primary)",
+          }}
+        >
+          Where{" "}
+          <span style={{ color: "var(--text-muted)", position: "relative" }}>
+            {displayText}
+            <span
+              style={{
+                display: "inline-block",
+                width: 2,
+                height: "0.85em",
+                marginLeft: 4,
+                background: "var(--text-primary)",
+                verticalAlign: "middle",
+                animation: "pulse 1s infinite",
+              }}
+            />
+          </span>
+          <br />
+          learn to speak with presence.
+        </h1>
+
+        <p
+          style={{
+            maxWidth: 640,
+            color: "var(--text-secondary)",
+            fontSize: 18,
+            lineHeight: 1.6,
+            marginBottom: 40,
+          }}
+        >
+          Transform passive communities into active speaking practice spaces. 
+          Meet real people, speak in structured rooms, and grow together.
+        </p>
+
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "center",
+            gap: 16,
+            marginBottom: 64,
+          }}
+        >
+          <Link href="/signup" className="btn btn-primary btn-lg" style={{ borderRadius: 100 }}>
+            Start Growing
+            <ArrowRight size={18} />
+          </Link>
+          <a href="#experience" className="btn btn-secondary btn-lg" style={{ borderRadius: 100 }}>
+            <Play size={16} fill="currentColor" />
+            Watch the experience
+          </a>
+        </div>
+
+        <div
+          style={{
+            width: "100%",
+            maxWidth: 1000,
+            borderRadius: 16,
+            border: "1px solid var(--border-primary)",
+            background: "var(--bg-secondary)",
+            overflow: "hidden",
+            boxShadow: "var(--shadow-lg)",
+            position: "relative",
+          }}
+        >
+          <div
+            style={{
+              padding: "12px 20px",
+              borderBottom: "1px solid var(--border-primary)",
+              background: "var(--bg-tertiary)",
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+            }}
+          >
+            <div style={{ display: "flex", gap: 6 }}>
+              <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#ef4444" }} />
+              <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#f59e0b" }} />
+              <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#10b981" }} />
             </div>
-
-            <h1
-              style={{
-                maxWidth: 760,
-                fontFamily: "var(--font-sans)",
-                fontSize: "clamp(42px, 7vw, 76px)",
-                lineHeight: 1,
-                letterSpacing: "-0.035em",
-                marginBottom: 18,
+            <div 
+              style={{ 
+                flex: 1, 
+                textAlign: "center", 
+                fontSize: 12, 
+                color: "var(--text-muted)",
+                fontFamily: "var(--font-mono)"
               }}
             >
-              Where{" "}
-              <span className="text-gradient" style={{ minWidth: "4.3ch", display: "inline-block" }}>
-                {displayText}
-                <span
-                  style={{
-                    display: "inline-block",
-                    width: 2,
-                    height: "0.9em",
-                    marginLeft: 4,
-                    background: "var(--text-primary)",
-                    verticalAlign: "text-bottom",
-                    animation: "pulse-glow 1s infinite",
-                  }}
-                />
-              </span>
-              <br />
-              learn to speak with presence.
-            </h1>
-
-            <p
-              style={{
-                maxWidth: 620,
-                color: "var(--text-secondary)",
-                fontSize: 17,
-                lineHeight: 1.75,
-                marginBottom: 28,
-              }}
-            >
-              OpenGrow turns passive communities into living practice spaces where
-              people meet, speak, reflect, and steadily improve together.
-            </p>
-
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: 12,
-                marginBottom: 28,
-              }}
-            >
-              <Link href="/signup" className="btn btn-primary btn-lg">
-                Start Growing
-                <ArrowRight size={16} />
-              </Link>
-              <a href="#features" className="btn btn-secondary btn-lg">
-                Explore the experience
-              </a>
-            </div>
-
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: 10,
-              }}
-            >
-              {highlights.map((item) => (
-                <span
-                  key={item}
-                  className="badge-outline"
-                  style={{ background: "rgba(255, 255, 255, 0.03)" }}
-                >
-                  <Sparkles size={12} />
-                  {item}
-                </span>
-              ))}
+              opengrow.space/dashboard
             </div>
           </div>
-
-          <div className="animate-fade-in">
-            <div
-              style={{
-                border: "1px solid var(--border-primary)",
-                borderRadius: 8,
-                background: "var(--bg-secondary)",
-                overflow: "hidden",
-                boxShadow: "var(--shadow-md)",
-              }}
-            >
-              <div
-                style={{
-                  padding: "14px 16px",
-                  borderBottom: "1px solid var(--border-primary)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  gap: 12,
-                  background: "var(--bg-tertiary)",
-                }}
-              >
-                <div>
-                  <p className="stat-label" style={{ marginBottom: 4 }}>
-                    OpenGrow workspace
-                  </p>
-                  <strong style={{ fontSize: 15 }}>Community operations</strong>
+          <div style={{ padding: "1px", background: "var(--border-primary)" }}>
+            <div style={{ background: "var(--bg-primary)", height: 500, position: "relative" }}>
+              {/* Simplified Dashboard Mockup */}
+              <div style={{ display: "flex", height: "100%" }}>
+                <div style={{ width: 200, borderRight: "1px solid var(--border-primary)", padding: 20, textAlign: "left" }}>
+                  <div style={{ height: 12, width: "80%", background: "var(--border-primary)", borderRadius: 4, marginBottom: 20 }} />
+                  <div style={{ height: 12, width: "60%", background: "var(--border-primary)", borderRadius: 4, marginBottom: 12 }} />
+                  <div style={{ height: 12, width: "70%", background: "var(--border-primary)", borderRadius: 4, marginBottom: 12 }} />
+                  <div style={{ height: 12, width: "50%", background: "var(--border-primary)", borderRadius: 4, marginBottom: 12 }} />
                 </div>
-                <span className="badge">Live</span>
-              </div>
-
-              <div style={{ padding: 18 }}>
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-                    border: "1px solid var(--border-primary)",
-                    borderRadius: 8,
-                    overflow: "hidden",
-                    marginBottom: 18,
-                  }}
-                >
-                  {[
-                    ["Sessions", "14"],
-                    ["Members", "186"],
-                    ["Reports", "42"],
-                  ].map(([label, value]) => (
-                    <div
-                      key={label}
-                      style={{
-                        padding: 14,
-                        borderRight:
-                          label === "Reports" ? "none" : "1px solid var(--border-primary)",
-                      }}
-                    >
-                      <p className="stat-label" style={{ marginBottom: 8 }}>
-                        {label}
-                      </p>
-                      <strong style={{ fontSize: 28, letterSpacing: "-0.02em" }}>
-                        {value}
-                      </strong>
-                    </div>
-                  ))}
-                </div>
-
-                <div style={{ display: "grid", gap: 10 }}>
-                  {[
-                    ["Product Communication Circle", "Today, 7:30 PM", "18 / 20"],
-                    ["Interview Practice Room", "Tomorrow, 6:00 PM", "12 / 16"],
-                    ["Leadership Roundtable", "Fri, 8:00 PM", "9 / 12"],
-                  ].map(([title, time, attendance]) => (
-                    <div
-                      key={title}
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "minmax(0, 1fr) 120px 70px",
-                        gap: 12,
-                        alignItems: "center",
-                        padding: "12px 0",
-                        borderBottom: "1px solid var(--border-primary)",
-                      }}
-                    >
-                      <div style={{ minWidth: 0 }}>
-                        <strong
-                          style={{
-                            display: "block",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {title}
-                        </strong>
-                        <span style={{ color: "var(--text-muted)", fontSize: 12 }}>
-                          Scheduled room
-                        </span>
-                      </div>
-                      <span style={{ color: "var(--text-secondary)", fontSize: 13 }}>
-                        {time}
-                      </span>
-                      <span style={{ color: "var(--text-secondary)", fontSize: 13 }}>
-                        {attendance}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                <div
-                  style={{
-                    marginTop: 18,
-                    display: "grid",
-                    gap: 10,
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 10,
-                      color: "var(--text-secondary)",
-                      fontSize: 14,
-                    }}
-                  >
-                    <CheckCircle2 size={16} color="var(--success)" />
-                    AI summaries are queued after each completed room.
+                <div style={{ flex: 1, padding: 32, textAlign: "left" }}>
+                  <div style={{ height: 24, width: "40%", background: "var(--border-primary)", borderRadius: 4, marginBottom: 32 }} />
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 40 }}>
+                    <div style={{ height: 100, border: "1px solid var(--border-primary)", borderRadius: 12 }} />
+                    <div style={{ height: 100, border: "1px solid var(--border-primary)", borderRadius: 12 }} />
+                    <div style={{ height: 100, border: "1px solid var(--border-primary)", borderRadius: 12 }} />
                   </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 10,
-                      color: "var(--text-secondary)",
-                      fontSize: 14,
-                    }}
-                  >
-                    <Users size={16} color="var(--accent)" />
-                    Hosts can see attendance and member momentum in one place.
-                  </div>
+                  <div style={{ height: 200, border: "1px solid var(--border-primary)", borderRadius: 12 }} />
                 </div>
               </div>
             </div>
@@ -288,11 +202,10 @@ export default function Hero() {
         </div>
       </div>
 
-      <style jsx>{`
-        @media (max-width: 980px) {
-          section > .section-shell > div {
-            grid-template-columns: 1fr;
-          }
+      <style jsx global>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
         }
       `}</style>
     </section>

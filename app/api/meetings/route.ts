@@ -2,8 +2,10 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Meeting from "@/lib/models/Meeting";
 import Community from "@/lib/models/Community";
+import User from "@/lib/models/User";
 import { getSession } from "@/lib/session";
 import { MeetingFormSchema } from "@/lib/definitions";
+import { pushToFeed } from "@/lib/feed";
 
 function addRecurrence(date: Date, recurrence: string, index: number) {
   const next = new Date(date);
@@ -107,6 +109,17 @@ export async function POST(request: Request) {
     }
 
     await community.save();
+
+    const user = await User.findById(session.userId).select("name");
+
+    await pushToFeed({
+      communityId,
+      userId: session.userId,
+      userName: user?.name || "Host",
+      type: "meeting_scheduled",
+      content: `scheduled a new session: "${title}"`,
+      metadata: { meetingId: meetings[0]._id },
+    });
 
     return NextResponse.json({ meeting: meetings[0], meetings }, { status: 201 });
   } catch (error) {

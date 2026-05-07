@@ -3,6 +3,8 @@ import connectDB from "@/lib/mongodb";
 import Community from "@/lib/models/Community";
 import User from "@/lib/models/User";
 import { getSession } from "@/lib/session";
+import { pushNotification } from "@/lib/notifications";
+import { pushToFeed } from "@/lib/feed";
 
 export async function POST(
   request: Request,
@@ -54,6 +56,36 @@ export async function POST(
     user.joinedCommunities.push(community._id);
     user.points += 10;
     await user.save();
+
+    // Notify joiner (welcome)
+    await pushNotification({
+      userId: session.userId,
+      type: "community_update",
+      title: `Welcome to ${community.name}!`,
+      body: "You've joined the community. Explore the rooms and introduce yourself.",
+      href: `/community/${community._id}`,
+    });
+
+    // Notify community creator (new member alert)
+    const creatorId = community.creator?.toString();
+    if (creatorId && creatorId !== session.userId) {
+      await pushNotification({
+        userId: creatorId,
+        type: "new_member",
+        title: "New member joined!",
+        body: `${user.name} just joined ${community.name}. Say hello!`,
+        href: `/community/${community._id}`,
+      });
+    }
+
+    // Log to community feed
+    await pushToFeed({
+      communityId: id,
+      userId: session.userId,
+      userName: user.name,
+      type: "join",
+      content: "joined the community",
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

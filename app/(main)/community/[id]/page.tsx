@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import CommunitySettings from "@/app/(main)/community/[id]/CommunitySettings";
 import CommunityWorkspace from "@/app/(main)/community/[id]/CommunityWorkspace";
+import CommunityAnalytics from "@/app/(main)/community/[id]/CommunityAnalytics";
+import CommunityFeed from "@/app/(main)/community/[id]/CommunityFeed";
 import ScheduleMeetingForm from "@/app/(main)/community/[id]/ScheduleMeetingForm";
 import AvailabilityVoting from "@/app/components/AvailabilityVoting";
 import JoinButton from "@/app/components/JoinButton";
@@ -150,10 +152,11 @@ export default async function CommunityPage({
             <h1
               style={{
                 fontFamily: "var(--font-display)",
-                fontSize: "clamp(36px, 5vw, 58px)",
-                lineHeight: 0.94,
-                letterSpacing: "-0.05em",
-                marginBottom: 14,
+                fontSize: 32,
+                fontWeight: 600,
+                lineHeight: 1.1,
+                letterSpacing: "-0.02em",
+                marginBottom: 10,
               }}
             >
               {community.name}
@@ -189,28 +192,28 @@ export default async function CommunityPage({
             marginTop: 24,
           }}
         >
-          <div className="card stat-card">
+          <div className="card stat-card" style={{ padding: "16px 20px", minHeight: 100 }}>
             <span className="stat-label">Members</span>
-            <span className="stat-value">
+            <span className="stat-value" style={{ fontSize: 22, fontWeight: 600 }}>
               {members.length}
-              <span style={{ fontSize: 14, color: "var(--text-muted)", marginLeft: 8 }}>
+              <span style={{ fontSize: 13, color: "var(--text-muted)", marginLeft: 8 }}>
                 / {community.maxMembers}
               </span>
             </span>
           </div>
-          <div className="card stat-card">
+          <div className="card stat-card" style={{ padding: "16px 20px", minHeight: 100 }}>
             <span className="stat-label">Upcoming Sessions</span>
-            <span className="stat-value">{upcomingMeetings.length}</span>
+            <span className="stat-value" style={{ fontSize: 22, fontWeight: 600 }}>{upcomingMeetings.length}</span>
           </div>
-          <div className="card stat-card">
+          <div className="card stat-card" style={{ padding: "16px 20px", minHeight: 100 }}>
             <span className="stat-label">Host</span>
-            <span className="stat-value" style={{ fontSize: 26 }}>
+            <span className="stat-value" style={{ fontSize: 22, fontWeight: 600 }}>
               {creator?.name.split(" ")[0]}
             </span>
           </div>
-          <div className="card stat-card">
+          <div className="card stat-card" style={{ padding: "16px 20px", minHeight: 100 }}>
             <span className="stat-label">Energy</span>
-            <span className="stat-value" style={{ fontSize: 26 }}>
+            <span className="stat-value" style={{ fontSize: 22, fontWeight: 600 }}>
               Active
             </span>
           </div>
@@ -237,6 +240,8 @@ export default async function CommunityPage({
               flexWrap: "wrap",
             }}
           >
+            {isCreator && <CommunityAnalytics communityId={id} />}
+
             <div>
               <p className="stat-label" style={{ marginBottom: 8 }}>
                 Sessions
@@ -244,8 +249,9 @@ export default async function CommunityPage({
               <h2
                 style={{
                   fontFamily: "var(--font-display)",
-                  fontSize: 30,
-                  letterSpacing: "-0.05em",
+                  fontSize: 20,
+                  fontWeight: 600,
+                  letterSpacing: "-0.02em",
                 }}
               >
                 Live rooms for this community
@@ -259,15 +265,15 @@ export default async function CommunityPage({
               <h3
                 style={{
                   fontFamily: "var(--font-display)",
-                  fontSize: 28,
-                  letterSpacing: "-0.05em",
+                  fontSize: 26,
+                  letterSpacing: "-0.04em",
                   marginBottom: 10,
                 }}
               >
-                Join to access future sessions
+                Unlock live sessions
               </h3>
-              <p style={{ color: "var(--text-secondary)", lineHeight: 1.75, maxWidth: 520, margin: "0 auto 18px" }}>
-                Become a member to participate in live meetings and unlock post-session reports.
+              <p style={{ color: "var(--text-secondary)", lineHeight: 1.6, maxWidth: 460, margin: "0 auto 20px" }}>
+                Join to practice speaking, attend live meetings, and receive AI-driven feedback.
               </p>
               <JoinButton communityId={id} />
             </div>
@@ -408,6 +414,8 @@ export default async function CommunityPage({
             isCreator={isCreator}
             workspace={workspace}
           />
+
+          <CommunityFeed communityId={id} />
 
           <div className="card">
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>

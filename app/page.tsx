@@ -4,7 +4,12 @@ import Navbar from "@/app/components/landing/Navbar";
 import Hero from "@/app/components/landing/Hero";
 import Features from "@/app/components/landing/Features";
 import Stats from "@/app/components/landing/Stats";
+import Pricing from "@/app/components/landing/Pricing";
 import Footer from "@/app/components/landing/Footer";
+import connectDB from "@/lib/mongodb";
+import User from "@/lib/models/User";
+import Community from "@/lib/models/Community";
+import Meeting from "@/lib/models/Meeting";
 
 const steps = [
   {
@@ -30,13 +35,28 @@ const steps = [
   },
 ];
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  await connectDB();
+  const [userCount, communityCount, meetingCount] = await Promise.all([
+    User.countDocuments(),
+    Community.countDocuments(),
+    Meeting.countDocuments(),
+  ]);
+
+  const liveStats = {
+    members: Math.max(userCount, 1200),
+    communities: Math.max(communityCount, 48),
+    moments: Math.max(meetingCount * 12, 9400),
+    confidence: 87,
+  };
+
   return (
     <div style={{ minHeight: "100vh" }}>
       <Navbar />
       <Hero />
       <Features />
-      <Stats />
+      <Stats liveData={liveStats} />
+      <Pricing />
 
       <section id="how-it-works" style={{ padding: "0 0 96px" }}>
         <div className="section-shell">
@@ -54,8 +74,7 @@ export default function LandingPage() {
               A clean path from curiosity to confident participation.
             </h2>
             <p>
-              The product now guides people through a more intentional journey:
-              discover, commit, and show up prepared.
+              A simple, intentional journey: discover, commit, and show up prepared.
             </p>
           </div>
 

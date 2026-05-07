@@ -2,19 +2,21 @@
 
 import { useEffect, useRef, useState } from "react";
 
-const stats = [
-  { value: 1200, label: "Members speaking every month", suffix: "+" },
-  { value: 85, label: "Focused communities", suffix: "+" },
-  { value: 15000, label: "Discussion moments captured", suffix: "+" },
-  { value: 96, label: "Members reporting confidence gains", suffix: "%" },
+const defaultStats = [
+  { id: "members", value: 1200, label: "Members speaking every month", suffix: "+" },
+  { id: "communities", value: 48, label: "Focused communities", suffix: "+" },
+  { id: "moments", value: 9400, label: "Discussion moments captured", suffix: "+" },
+  { id: "confidence", value: 87, label: "Members reporting confidence gains", suffix: "%" },
 ];
 
 function AnimatedCounter({
   target,
   suffix,
+  id,
 }: {
   target: number;
   suffix: string;
+  id: string;
 }) {
   const [count, setCount] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
@@ -84,14 +86,28 @@ function AnimatedCounter({
             lineHeight: 1.65,
           }}
         >
-          {stats.find((stat) => stat.value === target)?.label}
+          {defaultStats.find((stat) => stat.id === id)?.label}
         </p>
       </div>
     </div>
   );
 }
 
-export default function Stats() {
+export default function Stats({
+  liveData,
+}: {
+  liveData?: {
+    members?: number;
+    communities?: number;
+    moments?: number;
+    confidence?: number;
+  };
+}) {
+  const stats = defaultStats.map((stat) => ({
+    ...stat,
+    value: liveData?.[stat.id as keyof typeof liveData] || stat.value,
+  }));
+
   return (
     <section id="stats" style={{ padding: "0 0 96px" }}>
       <div className="section-shell">
@@ -103,7 +119,8 @@ export default function Stats() {
         >
           {stats.map((stat) => (
             <AnimatedCounter
-              key={stat.label}
+              key={stat.id}
+              id={stat.id}
               target={stat.value}
               suffix={stat.suffix}
             />

@@ -2,8 +2,22 @@
 
 import { useEffect, useState } from "react";
 
-export default function DashboardGreeting({ name }: { name: string }) {
+export default function DashboardGreeting({ 
+  name, 
+  role 
+}: { 
+  name: string; 
+  role?: string;
+}) {
   const [copy, setCopy] = useState<{ dateStr: string; greeting: string } | null>(null);
+
+  const roleMessages: Record<string, string> = {
+    student: "Ready to learn? Here are rooms for academic discussion and speaking practice.",
+    developer: "Keep building. Here are rooms for technical communication and dev collaboration.",
+    professional: "Lead with presence. Here are rooms for leadership and professional growth.",
+    teacher: "Share your wisdom. Here are rooms for mentoring and pedagogical practice.",
+    default: "Your communities, sessions, and progress are all in one calmer workspace now.",
+  };
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -31,33 +45,27 @@ export default function DashboardGreeting({ name }: { name: string }) {
     return <div style={{ minHeight: 124, marginBottom: 30 }} />;
   }
 
+
+
   return (
-    <div
-      className="card"
-      style={{
-        marginBottom: 30,
-        padding: "26px clamp(20px, 4vw, 32px)",
-        borderRadius: 30,
-        background:
-          "linear-gradient(135deg, rgba(132, 240, 184, 0.14), rgba(245, 184, 109, 0.1)), var(--bg-card)",
-      }}
-    >
-      <p className="stat-label" style={{ marginBottom: 12 }}>
+    <div style={{ marginBottom: 30 }}>
+      <p className="stat-label" style={{ marginBottom: 8 }}>
         {copy.dateStr}
       </p>
       <h1
         style={{
           fontFamily: "var(--font-display)",
-          fontSize: "clamp(30px, 4vw, 46px)",
-          lineHeight: 0.95,
-          letterSpacing: "-0.05em",
+          fontSize: "clamp(24px, 3vw, 32px)",
+          lineHeight: 1.1,
+          letterSpacing: "-0.02em",
           marginBottom: 8,
+          fontWeight: 600
         }}
       >
         {copy.greeting}, {name}.
       </h1>
-      <p style={{ color: "var(--text-secondary)", fontSize: 15, lineHeight: 1.7 }}>
-        Your communities, sessions, and progress are all in one calmer workspace now.
+      <p style={{ color: "var(--text-secondary)", fontSize: 15 }}>
+        {roleMessages[role || "default"] || roleMessages.default}
       </p>
     </div>
   );

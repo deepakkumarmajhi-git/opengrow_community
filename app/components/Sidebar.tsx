@@ -3,7 +3,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Compass, LayoutDashboard, Plus, Trophy } from "lucide-react";
+import { Compass, LayoutDashboard, Plus, Trophy, Hash, Sparkles } from "lucide-react";
+import NotificationBell from "@/app/components/NotificationBell";
+import UpgradeProModal from "@/app/components/UpgradeProModal";
+import { useState } from "react";
 
 interface SidebarProps {
   user: {
@@ -24,6 +27,7 @@ const navItems = [
 
 export default function Sidebar({ user }: SidebarProps) {
   const pathname = usePathname();
+  const [showUpgrade, setShowUpgrade] = useState(false);
   const initials = user.name
     .split(" ")
     .map((part) => part[0])
@@ -32,12 +36,26 @@ export default function Sidebar({ user }: SidebarProps) {
     .slice(0, 2);
 
   return (
-    <aside className="sidebar">
+    <aside
+      style={{
+        width: "var(--sidebar-width)",
+        height: "100vh",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        background: "var(--bg-primary)",
+        borderRight: "1px solid var(--border-primary)",
+        display: "flex",
+        flexDirection: "column",
+        zIndex: 100,
+      }}
+    >
       <div
-        className="sidebar-logo"
         style={{
-          padding: "22px 22px 18px",
-          borderBottom: "1px solid var(--border-primary)",
+          padding: "24px 20px",
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
         }}
       >
         <Link
@@ -45,113 +63,106 @@ export default function Sidebar({ user }: SidebarProps) {
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 12,
-            fontFamily: "var(--font-display)",
-            fontSize: 24,
-            fontWeight: 700,
-            letterSpacing: "-0.05em",
+            gap: 8,
+            fontSize: 16,
+            fontWeight: 600,
+            letterSpacing: "-0.02em",
+            color: "var(--text-primary)",
           }}
         >
-          <span
+          <div
             style={{
-              width: 42,
-              height: 42,
-              borderRadius: 8,
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
+              width: 24,
+              height: 24,
+              borderRadius: 6,
               overflow: "hidden",
-              background: "var(--bg-secondary)",
-              border: "1px solid var(--border-secondary)",
             }}
           >
             <Image
               src="/logo.png"
               alt="OpenGrow logo"
-              width={42}
-              height={42}
+              width={24}
+              height={24}
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
             />
-          </span>
-          <span className="sidebar-text">OpenGrow</span>
+          </div>
+          OpenGrow
         </Link>
       </div>
 
       <nav
-        className="sidebar-nav"
         style={{
           flex: 1,
-          padding: "18px 14px 16px",
+          padding: "0 12px",
           overflowY: "auto",
           display: "flex",
           flexDirection: "column",
+          gap: 32,
         }}
       >
-        <div
-          className="sidebar-primary-links"
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 8,
-            marginBottom: 24,
-          }}
-        >
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive =
-              pathname === item.href ||
-              (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
+        <div>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+            }}
+          >
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive =
+                pathname === item.href ||
+                (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
 
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`sidebar-link ${isActive ? "active" : ""}`}
-                style={{
-                  padding: "14px 14px",
-                  border: "1px solid transparent",
-                }}
-              >
-                <Icon size={18} style={{ flexShrink: 0 }} />
-                <span className="sidebar-text" style={{ fontSize: 14, fontWeight: 700 }}>
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={isActive ? "active-sidebar-link" : "sidebar-link"}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                    padding: "8px 12px",
+                    borderRadius: 8,
+                    fontSize: 14,
+                    fontWeight: 500,
+                    color: isActive ? "var(--text-primary)" : "var(--text-secondary)",
+                    background: isActive ? "var(--bg-tertiary)" : "transparent",
+                    transition: "all 0.2s"
+                  }}
+                >
+                  <Icon size={16} style={{ flexShrink: 0, opacity: isActive ? 1 : 0.6 }} />
                   {item.label}
-                </span>
-              </Link>
-            );
-          })}
+                </Link>
+              );
+            })}
+          </div>
         </div>
 
-        <div
-          className="sidebar-communities"
-          style={{
-            padding: "18px 8px 0",
-            borderTop: "1px solid var(--border-primary)",
-          }}
-        >
+        <div>
           <div
             style={{
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              gap: 12,
-              marginBottom: 12,
+              padding: "0 12px",
+              marginBottom: 8,
             }}
           >
-            <div>
-              <p className="stat-label" style={{ marginBottom: 6 }}>
-                Your communities
-              </p>
-              <p style={{ color: "var(--text-muted)", fontSize: 12 }}>
-                Spaces you are already part of
-              </p>
-            </div>
-
-            <Link href="/discover?create=true" className="btn btn-secondary btn-sm" title="Create community">
+            <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              Communities
+            </span>
+            <Link
+              href="/discover?create=true"
+              style={{ color: "var(--text-muted)", display: "flex", padding: 4 }}
+              className="hover-zinc"
+            >
               <Plus size={14} />
             </Link>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
             {user.communities?.length ? (
               user.communities.map((community) => {
                 const communityPath = `/community/${community._id}`;
@@ -161,53 +172,46 @@ export default function Sidebar({ user }: SidebarProps) {
                   <Link
                     key={community._id}
                     href={communityPath}
-                    className={`sidebar-link ${isActive ? "active" : ""}`}
+                    className={isActive ? "active-sidebar-link" : "sidebar-link"}
                     style={{
-                      padding: "12px 12px",
-                      border: "1px solid transparent",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 12,
+                      padding: "8px 12px",
+                      borderRadius: 8,
+                      fontSize: 14,
+                      fontWeight: 500,
+                      color: isActive ? "var(--text-primary)" : "var(--text-secondary)",
+                      background: isActive ? "var(--bg-tertiary)" : "transparent",
+                      transition: "all 0.2s"
                     }}
                   >
                     <div
                       style={{
-                        width: 34,
-                        height: 34,
-                        borderRadius: 14,
+                        width: 16,
+                        height: 16,
+                        borderRadius: 4,
+                        background: isActive ? "var(--text-primary)" : "var(--bg-secondary)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        background: "rgba(255, 255, 255, 0.05)",
-                        border: "1px solid var(--border-primary)",
-                        flexShrink: 0,
-                        fontSize: 12,
+                        fontSize: 10,
                         fontWeight: 700,
+                        color: isActive ? "var(--bg-primary)" : "var(--text-muted)",
+                        flexShrink: 0
                       }}
                     >
                       {community.name.charAt(0).toUpperCase()}
                     </div>
-                    <div style={{ minWidth: 0 }}>
-                      <p
-                        className="sidebar-text"
-                        style={{
-                          fontSize: 13,
-                          fontWeight: 700,
-                          marginBottom: 2,
-                        }}
-                      >
-                        {community.name}
-                      </p>
-                      <p style={{ color: "var(--text-muted)", fontSize: 11 }}>
-                        Community room
-                      </p>
-                    </div>
+                    <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      {community.name}
+                    </span>
                   </Link>
                 );
               })
             ) : (
-              <div className="card" style={{ padding: 16 }}>
-                <p style={{ color: "var(--text-secondary)", fontSize: 13, lineHeight: 1.6 }}>
-                  Join a community from Discover to populate your sidebar with
-                  active rooms.
-                </p>
+              <div style={{ padding: "0 12px", color: "var(--text-muted)", fontSize: 12 }}>
+                No active spaces
               </div>
             )}
           </div>
@@ -215,57 +219,88 @@ export default function Sidebar({ user }: SidebarProps) {
       </nav>
 
       <div
-        className="sidebar-user"
         style={{
-          padding: 18,
+          padding: "16px",
+          display: "flex",
+          flexDirection: "column",
+          gap: 16,
           borderTop: "1px solid var(--border-primary)",
         }}
       >
-        <Link
-          href="/profile"
-          className="sidebar-link"
+        <button
+          onClick={() => setShowUpgrade(true)}
+          className="btn-pro-gradient"
           style={{
-            padding: 14,
-            border: "1px solid var(--border-primary)",
-            background: pathname === "/profile" ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.03)",
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+            padding: "10px",
+            fontSize: 13,
+            fontWeight: 600,
+            borderRadius: 8,
+            cursor: "pointer",
+            border: "none"
           }}
         >
-          <div
+          <Sparkles size={14} fill="currentColor" />
+          Upgrade to Pro
+        </button>
+
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 4px" }}>
+          <Link
+            href="/profile"
             style={{
-              width: 44,
-              height: 44,
-              borderRadius: 16,
               display: "flex",
               alignItems: "center",
-              justifyContent: "center",
-              background:
-                "linear-gradient(135deg, rgba(132, 240, 184, 0.18), rgba(245, 184, 109, 0.16))",
-              color: "var(--text-primary)",
-              fontWeight: 800,
-              fontSize: 14,
-              flexShrink: 0,
+              gap: 10,
+              minWidth: 0,
+              textDecoration: "none"
             }}
           >
-            {initials}
-          </div>
-          <div style={{ minWidth: 0 }}>
-            <p
-              className="sidebar-text"
+            <div
               style={{
-                fontSize: 14,
-                fontWeight: 700,
-                marginBottom: 2,
+                width: 28,
+                height: 28,
+                borderRadius: 100,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "var(--bg-tertiary)",
+                border: "1px solid var(--border-primary)",
                 color: "var(--text-primary)",
+                fontWeight: 600,
+                fontSize: 12,
+                flexShrink: 0,
               }}
             >
-              {user.name}
-            </p>
-            <p style={{ color: "var(--text-muted)", fontSize: 12 }}>
-              {user.points.toLocaleString()} points
-            </p>
-          </div>
-        </Link>
+              {initials}
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                {user.name}
+              </span>
+              <span style={{ fontSize: 11, color: "var(--text-muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                {user.role}
+              </span>
+            </div>
+          </Link>
+          <NotificationBell />
+        </div>
       </div>
+
+      <UpgradeProModal isOpen={showUpgrade} onClose={() => setShowUpgrade(false)} />
+
+      <style jsx>{`
+        .sidebar-link:hover {
+          background: var(--bg-tertiary) !important;
+          color: var(--text-primary) !important;
+        }
+        .hover-zinc:hover {
+          color: var(--text-primary) !important;
+        }
+      `}</style>
     </aside>
   );
 }

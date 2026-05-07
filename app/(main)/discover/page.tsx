@@ -10,6 +10,7 @@ import {
   Users,
   X,
 } from "lucide-react";
+import UpgradeProModal from "@/app/components/UpgradeProModal";
 
 interface CommunityData {
   _id: string;
@@ -33,6 +34,7 @@ export default function DiscoverPage() {
   const [creating, setCreating] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState("");
+  const [showUpgrade, setShowUpgrade] = useState(false);
 
   const fetchCommunities = useCallback(async () => {
     try {
@@ -58,7 +60,11 @@ export default function DiscoverPage() {
   const handleJoin = async (communityId: string) => {
     setActionLoading(communityId);
     try {
-      await fetch(`/api/communities/${communityId}/join`, { method: "POST" });
+      const res = await fetch(`/api/communities/${communityId}/join`, { method: "POST" });
+      if (res.status === 403) {
+        setShowUpgrade(true);
+        return;
+      }
       fetchCommunities();
     } finally {
       setActionLoading(null);
@@ -114,115 +120,107 @@ export default function DiscoverPage() {
 
   return (
     <div className="page-container">
-      <div
-        className="card"
-        style={{
-          marginBottom: 24,
-          padding: "28px clamp(22px, 4vw, 34px)",
-          background:
-            "linear-gradient(135deg, rgba(132, 240, 184, 0.14), rgba(245, 184, 109, 0.08)), var(--bg-card)",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "flex-end",
-            justifyContent: "space-between",
-            gap: 18,
-            flexWrap: "wrap",
-          }}
-        >
-          <div style={{ maxWidth: 640 }}>
-            <span className="eyebrow" style={{ marginBottom: 14 }}>
-              Discover
-            </span>
+      <header style={{ marginBottom: 48 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24, flexWrap: "wrap" }}>
+          <div>
             <h1
               style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "clamp(34px, 5vw, 56px)",
-                lineHeight: 0.95,
-                letterSpacing: "-0.05em",
-                marginBottom: 12,
+                fontSize: 32,
+                fontWeight: 600,
+                letterSpacing: "-0.03em",
+                marginBottom: 8,
               }}
             >
-              Find a room worth showing up to.
+              Discover Communities
             </h1>
-            <p style={{ color: "var(--text-secondary)", lineHeight: 1.75, fontSize: 16 }}>
-              Browse active communities, filter by the kind of growth you want,
-              and join spaces where members are already practicing together.
+            <p style={{ color: "var(--text-secondary)", fontSize: 14 }}>
+              Find spaces where members are already practicing together.
             </p>
           </div>
-
           <button type="button" onClick={() => setShowCreate(true)} className="btn btn-primary">
             <Plus size={16} />
-            Create community
+            Create space
           </button>
         </div>
-      </div>
+      </header>
 
       <div
-        className="discover-filter-row"
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          gap: 18,
-          marginBottom: 24,
+          gap: 20,
+          marginBottom: 32,
+          flexWrap: "wrap",
         }}
       >
-        <div className="discover-category-row" style={{ display: "flex", gap: 10 }}>
+        <div style={{ display: "flex", gap: 4, background: "var(--bg-tertiary)", padding: 4, borderRadius: 10 }}>
           {categories.map((category) => (
             <button
               key={category}
               type="button"
               onClick={() => setActiveCategory(category)}
-              className={activeCategory === category ? "btn btn-secondary btn-sm" : "btn btn-ghost btn-sm"}
-              style={{ whiteSpace: "nowrap" }}
+              style={{
+                padding: "6px 12px",
+                borderRadius: 8,
+                fontSize: 13,
+                fontWeight: 500,
+                color: activeCategory === category ? "var(--text-primary)" : "var(--text-muted)",
+                background: activeCategory === category ? "var(--bg-primary)" : "transparent",
+                border: "none",
+                cursor: "pointer",
+                transition: "all 0.2s"
+              }}
             >
               {category}
             </button>
           ))}
         </div>
 
-        <div style={{ position: "relative", width: "min(320px, 100%)" }}>
+        <div style={{ position: "relative", width: "min(300px, 100%)" }}>
           <Search
-            size={16}
+            size={14}
             style={{
               position: "absolute",
               top: "50%",
-              left: 14,
+              left: 12,
               transform: "translateY(-50%)",
               color: "var(--text-muted)",
             }}
           />
           <input
             type="text"
-            placeholder="Search communities"
+            placeholder="Search spaces..."
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            className="input"
-            style={{ paddingLeft: 40 }}
+            style={{
+              width: "100%",
+              height: 36,
+              padding: "0 12px 0 36px",
+              background: "var(--bg-secondary)",
+              border: "1px solid var(--border-primary)",
+              borderRadius: 8,
+              fontSize: 13,
+              color: "var(--text-primary)"
+            }}
           />
         </div>
       </div>
 
       {loading ? (
-        <div className="card" style={{ padding: 48, textAlign: "center" }}>
-          <Loader2 size={26} className="animate-spin" style={{ margin: "0 auto 12px" }} />
-          <p style={{ color: "var(--text-secondary)" }}>Loading communities...</p>
+        <div style={{ padding: 100, textAlign: "center" }}>
+          <Loader2 size={24} className="animate-spin" style={{ margin: "0 auto", color: "var(--text-muted)" }} />
         </div>
       ) : filtered.length === 0 ? (
-        <div className="card" style={{ padding: 48, textAlign: "center" }}>
-          <p style={{ color: "var(--text-secondary)" }}>
-            No communities match this view yet. Try another category or create your own.
-          </p>
+        <div className="card" style={{ padding: 80, textAlign: "center", background: "var(--bg-secondary)" }}>
+          <p style={{ color: "var(--text-muted)", fontSize: 14 }}>No spaces found matching your search.</p>
         </div>
       ) : (
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 320px), 1fr))",
-            gap: 18,
+            gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
+            gap: 20,
           }}
         >
           {filtered.map((community) => {
@@ -232,82 +230,80 @@ export default function DiscoverPage() {
             return (
               <div
                 key={community._id}
-                className="card"
+                className="card card-discover-gradient"
                 style={{
+                  padding: 24,
                   display: "flex",
                   flexDirection: "column",
-                  justifyContent: "space-between",
                   gap: 20,
-                  minHeight: 260,
+                  borderRadius: 8,
                 }}
               >
-                <div>
+                <div style={{ flex: 1 }}>
                   <div
                     style={{
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
-                      gap: 12,
-                      marginBottom: 18,
+                      marginBottom: 16,
                     }}
                   >
-                    <span className="badge-outline">{community.category}</span>
-                    <span style={{ color: "var(--text-muted)", fontSize: 12, fontWeight: 700 }}>
-                      {community.members.length}/{community.maxMembers}
+                    <span 
+                      style={{ 
+                        fontSize: 10, 
+                        fontWeight: 700, 
+                        textTransform: "uppercase", 
+                        letterSpacing: "0.05em",
+                        color: "var(--text-muted)",
+                        background: "var(--bg-tertiary)",
+                        padding: "2px 8px",
+                        borderRadius: 4
+                      }}
+                    >
+                      {community.category}
+                    </span>
+                    <span style={{ color: "var(--text-muted)", fontSize: 11, fontWeight: 500 }}>
+                      {community.members.length} / {community.maxMembers} members
                     </span>
                   </div>
 
-                  <h3
-                    style={{
-                      fontFamily: "var(--font-display)",
-                      fontSize: 28,
-                      letterSpacing: "-0.04em",
-                      marginBottom: 10,
+                  <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>{community.name}</h3>
+                  <p 
+                    style={{ 
+                      color: "var(--text-secondary)", 
+                      fontSize: 13, 
+                      lineHeight: 1.5,
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden"
                     }}
                   >
-                    {community.name}
-                  </h3>
-                  <p style={{ color: "var(--text-secondary)", lineHeight: 1.75, fontSize: 15 }}>
                     {community.description}
                   </p>
                 </div>
 
-                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      gap: 12,
-                      color: "var(--text-secondary)",
-                      fontSize: 13,
-                    }}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, paddingTop: 16, borderTop: "1px solid var(--border-primary)" }}>
+                  <Link 
+                    href={`/community/${community._id}`} 
+                    style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)", display: "flex", alignItems: "center", gap: 4 }}
                   >
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                      <Users size={14} />
-                      {community.members.length} members
-                    </span>
-                    <span>By {community.creator?.name.split(" ")[0]}</span>
-                  </div>
+                    Details
+                    <ArrowRight size={14} />
+                  </Link>
 
-                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                    <Link href={`/community/${community._id}`} className="btn btn-secondary btn-sm">
-                      View details
-                      <ArrowRight size={14} />
-                    </Link>
-
+                  <div style={{ display: "flex", gap: 8 }}>
                     {isCreator ? (
-                      <span className="btn btn-ghost btn-sm" style={{ cursor: "default" }}>
-                        Host
-                      </span>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-muted)", padding: "4px 8px" }}>Host</span>
                     ) : isMember ? (
                       <button
                         type="button"
                         onClick={() => handleLeave(community._id)}
                         disabled={actionLoading === community._id}
                         className="btn btn-ghost btn-sm"
+                        style={{ height: 28 }}
                       >
-                        {actionLoading === community._id ? "Leaving..." : "Joined"}
+                        {actionLoading === community._id ? "..." : "Joined"}
                       </button>
                     ) : (
                       <button
@@ -315,8 +311,9 @@ export default function DiscoverPage() {
                         onClick={() => handleJoin(community._id)}
                         disabled={actionLoading === community._id}
                         className="btn btn-primary btn-sm"
+                        style={{ height: 28 }}
                       >
-                        {actionLoading === community._id ? "Joining..." : "Join"}
+                        {actionLoading === community._id ? "..." : "Join"}
                       </button>
                     )}
                   </div>
@@ -333,65 +330,42 @@ export default function DiscoverPage() {
           style={{
             position: "fixed",
             inset: 0,
-            zIndex: 90,
+            zIndex: 1000,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            padding: 20,
-            background: "rgba(4, 11, 9, 0.76)",
-            backdropFilter: "blur(14px)",
+            padding: 24,
+            background: "rgba(0, 0, 0, 0.4)",
+            backdropFilter: "blur(8px)",
           }}
         >
           <div
             className="card"
-            style={{ width: "min(520px, 100%)", padding: 28 }}
+            style={{ width: "min(480px, 100%)", padding: 32, boxShadow: "var(--shadow-lg)" }}
             onClick={(event) => event.stopPropagation()}
           >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: 12,
-                marginBottom: 22,
-              }}
-            >
-              <div>
-                <p className="stat-label" style={{ marginBottom: 8 }}>
-                  New space
-                </p>
-                <h2
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    fontSize: 32,
-                    letterSpacing: "-0.05em",
-                  }}
-                >
-                  Create a community
-                </h2>
-              </div>
-              <button type="button" onClick={() => setShowCreate(false)} className="btn btn-ghost btn-sm">
-                <X size={16} />
-              </button>
+            <div style={{ marginBottom: 24 }}>
+              <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 4 }}>Create a space</h2>
+              <p style={{ color: "var(--text-secondary)", fontSize: 13 }}>Launch a new community for growth.</p>
             </div>
 
-            <form onSubmit={handleCreate} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <div>
-                <label className="label">Community Name</label>
-                <input name="name" placeholder="Open discussion circle" required className="input" />
+            <form onSubmit={handleCreate} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-muted)" }}>Name</label>
+                <input name="name" placeholder="E.g. Product Designers" required className="input" />
               </div>
-              <div>
-                <label className="label">Description</label>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-muted)" }}>Description</label>
                 <textarea
                   name="description"
-                  placeholder="What makes this community valuable to join?"
-                  rows={4}
+                  placeholder="What is this space for?"
+                  rows={3}
                   required
                   className="input"
                 />
               </div>
-              <div>
-                <label className="label">Category</label>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-muted)" }}>Category</label>
                 <select name="category" className="input">
                   <option value="communication">Communication</option>
                   <option value="personality">Personality</option>
@@ -399,15 +373,12 @@ export default function DiscoverPage() {
                   <option value="general">General</option>
                 </select>
               </div>
-              <div>
-                <label className="label">Tags</label>
-                <input name="tags" placeholder="leadership, speaking, product" className="input" />
-              </div>
-              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                <button type="submit" disabled={creating} className="btn btn-primary">
-                  {creating ? "Creating..." : "Launch community"}
+              
+              <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
+                <button type="submit" disabled={creating} className="btn btn-primary" style={{ flex: 1 }}>
+                  {creating ? "Creating..." : "Create space"}
                 </button>
-                <button type="button" onClick={() => setShowCreate(false)} className="btn btn-secondary">
+                <button type="button" onClick={() => setShowCreate(false)} className="btn btn-secondary" style={{ flex: 1 }}>
                   Cancel
                 </button>
               </div>
@@ -415,6 +386,7 @@ export default function DiscoverPage() {
           </div>
         </div>
       )}
+      <UpgradeProModal isOpen={showUpgrade} onClose={() => setShowUpgrade(false)} />
     </div>
   );
 }

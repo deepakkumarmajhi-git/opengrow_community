@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Sparkles, UserPlus } from "lucide-react";
+import { ArrowRight, Sparkles, UserPlus, Info, AlertCircle } from "lucide-react";
 import { signup } from "@/app/actions/auth";
 
 const roles = [
@@ -78,16 +78,28 @@ export default function SignupPage() {
       <form action={action} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
         {state?.message && (
           <div
+            className="animate-slide-down"
             style={{
               padding: "14px 16px",
               borderRadius: "var(--radius-md)",
-              background: "rgba(255, 133, 116, 0.1)",
-              border: "1px solid rgba(255, 133, 116, 0.2)",
-              color: "var(--danger)",
+              background: state.message.toLowerCase().includes("exists") || state.errors 
+                ? "rgba(212, 76, 71, 0.1)" 
+                : "rgba(46, 160, 67, 0.1)",
+              border: `1px solid ${state.message.toLowerCase().includes("exists") || state.errors 
+                ? "rgba(212, 76, 71, 0.2)" 
+                : "rgba(46, 160, 67, 0.2)"}`,
+              color: state.message.toLowerCase().includes("exists") || state.errors 
+                ? "var(--danger)" 
+                : "var(--success)",
               fontSize: 14,
               fontWeight: 600,
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              marginBottom: 10,
             }}
           >
+            <AlertCircle size={18} />
             {state.message}
           </div>
         )}
@@ -102,10 +114,10 @@ export default function SignupPage() {
             type="text"
             placeholder="How should the community know you?"
             className="input"
-            required
           />
           {state?.errors?.name && (
-            <p style={{ marginTop: 8, color: "var(--danger)", fontSize: 12 }}>
+            <p style={{ marginTop: 8, color: "var(--danger)", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+              <AlertCircle size={12} />
               {state.errors.name[0]}
             </p>
           )}
@@ -121,10 +133,10 @@ export default function SignupPage() {
             type="email"
             placeholder="you@example.com"
             className="input"
-            required
           />
           {state?.errors?.email && (
-            <p style={{ marginTop: 8, color: "var(--danger)", fontSize: 12 }}>
+            <p style={{ marginTop: 8, color: "var(--danger)", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+              <AlertCircle size={12} />
               {state.errors.email[0]}
             </p>
           )}
@@ -140,15 +152,47 @@ export default function SignupPage() {
             type="password"
             placeholder="At least 8 characters"
             className="input"
-            required
           />
-          {state?.errors?.password && (
-            <div style={{ marginTop: 8, color: "var(--danger)", fontSize: 12 }}>
-              {state.errors.password.map((error: string) => (
-                <p key={error}>{error}</p>
-              ))}
-            </div>
-          )}
+          <div
+            style={{
+              marginTop: 10,
+              display: "flex",
+              flexDirection: "column",
+              gap: 8,
+            }}
+          >
+            <p
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                color: "var(--text-muted)",
+                fontSize: 12,
+              }}
+            >
+              <Info size={12} />
+              Password must be at least 8 characters with a letter and a number.
+            </p>
+            {state?.errors?.password && (
+              <div
+                style={{
+                  color: "var(--danger)",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 4,
+                }}
+              >
+                {state.errors.password.map((error: string) => (
+                  <p key={error} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <AlertCircle size={12} />
+                    {error}
+                  </p>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         <div>
@@ -192,9 +236,23 @@ export default function SignupPage() {
           )}
         </div>
 
-        <button type="submit" disabled={pending} className="btn btn-primary" style={{ marginTop: 6 }}>
-          {pending ? "Creating your space..." : "Create account"}
-          {!pending && <UserPlus size={16} />}
+        <button
+          type="submit"
+          disabled={pending}
+          className="btn btn-primary"
+          style={{ marginTop: 6, gap: 12 }}
+        >
+          {pending ? (
+            <>
+              <div className="spinner" />
+              Creating your space...
+            </>
+          ) : (
+            <>
+              Create account
+              <UserPlus size={16} />
+            </>
+          )}
         </button>
       </form>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import {
   Award,
   Camera,
@@ -14,6 +15,7 @@ import {
   Zap,
 } from "lucide-react";
 import { logout } from "@/app/actions/auth";
+import SparklineChart from "@/app/components/SparklineChart";
 
 interface UserData {
   _id: string;
@@ -461,6 +463,13 @@ export default function ProfilePage() {
             <p className="stat-label" style={{ marginBottom: 12 }}>
               Growth Timeline
             </p>
+            {timeline.length >= 2 && (
+              <div style={{ marginBottom: 24 }}>
+                <SparklineChart
+                  scores={[...timeline].reverse().map((item) => item.overallScore)}
+                />
+              </div>
+            )}
             <div style={{ display: "grid", gap: 12 }}>
               {timeline.length === 0 ? (
                 <p style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}>
@@ -468,13 +477,37 @@ export default function ProfilePage() {
                 </p>
               ) : (
                 timeline.slice(0, 5).map((item) => (
-                  <div key={item._id} className="card" style={{ padding: 14 }}>
+                  <Link
+                    key={item._id}
+                    href={`/meeting/${item.meetingId?._id ?? item._id}/report`}
+                    className="card card-hover"
+                    style={{ padding: 14, display: "block", textDecoration: "none" }}
+                  >
                     <div style={{ display: "flex", justifyContent: "space-between", gap: 10, marginBottom: 8 }}>
                       <strong style={{ fontSize: 14 }}>
                         {item.meetingId?.title || "Meeting report"}
                       </strong>
-                      <span style={{ color: "var(--text-muted)", fontSize: 12 }}>
-                        {item.overallScore}
+                      <span
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 700,
+                          color:
+                            item.overallScore >= 85
+                              ? "var(--success)"
+                              : item.overallScore >= 70
+                              ? "var(--accent-warm)"
+                              : "var(--danger)",
+                          background:
+                            item.overallScore >= 85
+                              ? "rgba(46,160,67,0.1)"
+                              : item.overallScore >= 70
+                              ? "rgba(245,184,109,0.12)"
+                              : "rgba(212,76,71,0.1)",
+                          padding: "3px 10px",
+                          borderRadius: 8,
+                        }}
+                      >
+                        {item.overallScore}/100
                       </span>
                     </div>
                     <p style={{ color: "var(--text-secondary)", fontSize: 13, lineHeight: 1.6, marginBottom: 10 }}>
@@ -487,7 +520,7 @@ export default function ProfilePage() {
                         </span>
                       ))}
                     </div>
-                  </div>
+                  </Link>
                 ))
               )}
             </div>

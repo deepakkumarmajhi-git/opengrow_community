@@ -4,6 +4,7 @@ import MeetingReport from "@/lib/models/MeetingReport";
 import Meeting from "@/lib/models/Meeting";
 import { getSession } from "@/lib/session";
 import { generateCoachReport } from "@/lib/coach";
+import { pushNotification } from "@/lib/notifications";
 
 export async function GET(
   request: Request,
@@ -54,6 +55,18 @@ export async function GET(
       userId: session.userId,
       ...coachReport,
     });
+
+    // Push badge notification for first badge earned
+    const firstBadge = coachReport.badgesEarned?.[0];
+    if (firstBadge) {
+      await pushNotification({
+        userId: session.userId,
+        type: "badge_earned",
+        title: `Badge unlocked: ${firstBadge}`,
+        body: `Your session for "${meeting.title}" generated a new AI report. Keep it up!`,
+        href: `/meeting/${meetingId}/report`,
+      });
+    }
 
     return NextResponse.json({ report: newReport }, { status: 201 });
   } catch (error) {

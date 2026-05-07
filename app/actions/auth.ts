@@ -79,7 +79,26 @@ export async function login(
     return { message: "Invalid email or password." };
   }
 
-  // 4. Create session & redirect
+  // 4. Update streak
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const lastActive = user.lastActiveDate ? new Date(user.lastActiveDate) : null;
+  if (lastActive) {
+    lastActive.setHours(0, 0, 0, 0);
+    const daysDiff = Math.round((today.getTime() - lastActive.getTime()) / 86400000);
+    if (daysDiff === 1) {
+      user.streak = (user.streak || 0) + 1;
+    } else if (daysDiff > 1) {
+      user.streak = 1;
+    }
+    // daysDiff === 0 means already logged in today → keep streak unchanged
+  } else {
+    user.streak = 1;
+  }
+  user.lastActiveDate = new Date();
+  await user.save();
+
+  // 5. Create session & redirect
   await createSession(user._id.toString());
   redirect("/dashboard");
 }

@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import Link from "next/link";
-import { ArrowLeft, LogIn, Sparkles } from "lucide-react";
+import { ArrowLeft, LogIn, Sparkles, AlertCircle } from "lucide-react";
 import { login } from "@/app/actions/auth";
 
 export default function LoginPage() {
@@ -56,16 +56,22 @@ export default function LoginPage() {
       <form action={action} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
         {state?.message && (
           <div
+            className="animate-slide-down"
             style={{
               padding: "14px 16px",
               borderRadius: "var(--radius-md)",
-              background: "rgba(255, 133, 116, 0.1)",
-              border: "1px solid rgba(255, 133, 116, 0.2)",
+              background: "rgba(212, 76, 71, 0.1)",
+              border: "1px solid rgba(212, 76, 71, 0.2)",
               color: "var(--danger)",
               fontSize: 14,
               fontWeight: 600,
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              marginBottom: 10,
             }}
           >
+            <AlertCircle size={18} />
             {state.message}
           </div>
         )}
@@ -80,11 +86,11 @@ export default function LoginPage() {
             type="email"
             placeholder="you@example.com"
             className="input"
-            required
             autoComplete="email"
           />
           {state?.errors?.email && (
-            <p style={{ marginTop: 8, color: "var(--danger)", fontSize: 12 }}>
+            <p style={{ marginTop: 8, color: "var(--danger)", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+              <AlertCircle size={12} />
               {state.errors.email[0]}
             </p>
           )}
@@ -100,19 +106,33 @@ export default function LoginPage() {
             type="password"
             placeholder="Enter your password"
             className="input"
-            required
             autoComplete="current-password"
           />
           {state?.errors?.password && (
-            <p style={{ marginTop: 8, color: "var(--danger)", fontSize: 12 }}>
+            <p style={{ marginTop: 8, color: "var(--danger)", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+              <AlertCircle size={12} />
               {state.errors.password[0]}
             </p>
           )}
         </div>
 
-        <button type="submit" disabled={pending} className="btn btn-primary" style={{ marginTop: 6 }}>
-          {pending ? "Signing you in..." : "Continue to dashboard"}
-          {!pending && <LogIn size={16} />}
+        <button
+          type="submit"
+          disabled={pending}
+          className="btn btn-primary"
+          style={{ marginTop: 6, gap: 12 }}
+        >
+          {pending ? (
+            <>
+              <div className="spinner" />
+              Signing you in...
+            </>
+          ) : (
+            <>
+              Continue to dashboard
+              <LogIn size={16} />
+            </>
+          )}
         </button>
       </form>
 

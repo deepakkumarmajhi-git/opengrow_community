@@ -1,22 +1,21 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
-  ArrowRight,
   Calendar,
-  Clock,
-  Compass,
   Flame,
-  Plus,
   Trophy,
   Users,
   Video,
 } from "lucide-react";
 import DashboardGreeting from "@/app/components/DashboardGreeting";
 import CalendarWidget from "@/app/components/CalendarWidget";
+import OnboardingChecklist from "@/app/components/OnboardingChecklist";
+import SparklineChart from "@/app/components/SparklineChart";
 import { getSession } from "@/lib/session";
 import connectDB from "@/lib/mongodb";
 import Community from "@/lib/models/Community";
 import Meeting from "@/lib/models/Meeting";
+import MeetingReport from "@/lib/models/MeetingReport";
 import User from "@/lib/models/User";
 
 export default async function DashboardPage() {
@@ -29,6 +28,35 @@ export default async function DashboardPage() {
     .populate({ path: "createdCommunity", model: Community });
 
   if (!user) redirect("/login");
+
+  const hasReport = await MeetingReport.exists({ userId: session.userId });
+
+  const onboardingSteps = [
+    {
+      id: "role",
+      label: "Set your identity",
+      completed: !!user.role,
+      href: "/profile",
+    },
+    {
+      id: "community",
+      label: "Join a community",
+      completed: (user.joinedCommunities?.length || 0) > 0 || !!user.createdCommunity,
+      href: "/discover",
+    },
+    {
+      id: "meeting",
+      label: "Attend a room",
+      completed: (user.meetingsAttended?.length || 0) > 0,
+      href: "/discover",
+    },
+    {
+      id: "report",
+      label: "Review insights",
+      completed: !!hasReport,
+      href: "/profile",
+    },
+  ];
 
   const communityIds = [
     ...(user.joinedCommunities?.map((community: { _id: string }) => community._id) || []),
@@ -82,73 +110,63 @@ export default async function DashboardPage() {
 
   return (
     <div className="page-container">
-      <DashboardGreeting name={user.name.split(" ")[0]} />
+      <header style={{ marginBottom: 40 }}>
+        <DashboardGreeting name={user.name.split(" ")[0]} role={user.role} />
+      </header>
+
+      <OnboardingChecklist steps={onboardingSteps} />
 
       <div
-        className="dashboard-stats-grid"
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
-          gap: 16,
-          marginBottom: 30,
+          gap: 20,
+          marginBottom: 48,
         }}
       >
         {stats.map((stat) => {
           const Icon = stat.icon;
 
           return (
-            <div key={stat.label} className="card" style={{ minHeight: 170 }}>
+            <div key={stat.label} className="card" style={{ padding: "20px 24px", minHeight: "auto" }}>
               <div
                 style={{
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  gap: 12,
-                  marginBottom: 24,
+                  marginBottom: 12,
                 }}
               >
-                <span className="stat-label">{stat.label}</span>
-                <div
+                <span className="stat-label" style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 500 }}>{stat.label}</span>
+                <Icon size={14} color="var(--text-muted)" style={{ opacity: 0.5 }} />
+              </div>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+                <span
                   style={{
-                    width: 42,
-                    height: 42,
-                    borderRadius: 16,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    background: stat.accent,
-                    border: "1px solid var(--border-primary)",
+                    fontSize: 24,
+                    fontWeight: 600,
+                    letterSpacing: "-0.02em",
+                    color: "var(--text-primary)"
                   }}
                 >
-                  <Icon size={18} color={stat.color} />
-                </div>
+                  {stat.value}
+                </span>
+                {stat.label === "Points" && (
+                  <span style={{ fontSize: 11, color: "var(--success)", fontWeight: 500 }}>
+                    +12%
+                  </span>
+                )}
               </div>
-              <p
-                style={{
-                  fontFamily: "var(--font-display)",
-                  fontSize: 40,
-                  fontWeight: 700,
-                  letterSpacing: "-0.05em",
-                  lineHeight: 0.95,
-                  marginBottom: 10,
-                }}
-              >
-                {stat.value}
-              </p>
-              <p style={{ color: "var(--text-secondary)", fontSize: 13 }}>
-                Snapshot of your current activity.
-              </p>
             </div>
           );
         })}
       </div>
 
       <div
-        className="dashboard-main-grid"
         style={{
           display: "grid",
-          gridTemplateColumns: "minmax(0, 1.5fr) minmax(320px, 0.9fr)",
-          gap: 24,
+          gridTemplateColumns: "1fr 340px",
+          gap: 40,
           alignItems: "start",
         }}
       >
@@ -156,239 +174,157 @@ export default async function DashboardPage() {
           <div
             style={{
               display: "flex",
-              alignItems: "flex-end",
+              alignItems: "center",
               justifyContent: "space-between",
-              gap: 14,
-              marginBottom: 16,
-              flexWrap: "wrap",
+              marginBottom: 24,
             }}
           >
-            <div>
-              <p className="stat-label" style={{ marginBottom: 8 }}>
-                Upcoming
-              </p>
-              <h2
-                style={{
-                  fontFamily: "var(--font-display)",
-                  fontSize: 30,
-                  letterSpacing: "-0.05em",
-                }}
-              >
-                Your next live sessions
-              </h2>
-            </div>
-            <Link href="/discover" className="btn btn-secondary btn-sm">
-              Explore more communities
+            <h2
+              style={{
+                fontSize: 18,
+                fontWeight: 600,
+                letterSpacing: "-0.02em",
+              }}
+            >
+              Upcoming Sessions
+            </h2>
+            <Link href="/discover" className="btn btn-ghost btn-sm">
+              View all
             </Link>
           </div>
 
-          {upcomingMeetings.length === 0 ? (
-            <div
-              className="card"
-              style={{
-                padding: "40px clamp(22px, 4vw, 34px)",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                textAlign: "center",
-                gap: 14,
-              }}
-            >
+          <div style={{ display: "grid", gap: 12 }}>
+            {upcomingMeetings.length === 0 ? (
               <div
-                style={{
-                  width: 62,
-                  height: 62,
-                  borderRadius: 22,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background:
-                    "linear-gradient(135deg, rgba(132, 240, 184, 0.2), rgba(245, 184, 109, 0.16))",
-                }}
-              >
-                <Video size={26} />
-              </div>
-              <h3
-                style={{
-                  fontFamily: "var(--font-display)",
-                  fontSize: 26,
-                  letterSpacing: "-0.04em",
-                }}
-              >
-                Your calendar is open.
-              </h3>
-              <p style={{ maxWidth: 420, color: "var(--text-secondary)", lineHeight: 1.75 }}>
-                Join a new community or schedule a room so your next practice
-                session has a home.
-              </p>
-              <Link href="/discover" className="btn btn-primary">
-                Discover communities
-              </Link>
-            </div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {upcomingMeetings.map((meeting) => (
-                <div
-                  key={String(meeting._id)}
-                  className="card dashboard-meeting-row"
-                  style={{
-                    padding: 20,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: 18,
-                  }}
-                >
-                  <div style={{ flex: 1 }}>
-                    <p className="stat-label" style={{ marginBottom: 8 }}>
-                      {(meeting.community as unknown as { name: string })?.name}
-                    </p>
-                    <h3
-                      style={{
-                        fontSize: 20,
-                        fontWeight: 700,
-                        letterSpacing: "-0.03em",
-                        marginBottom: 8,
-                      }}
-                    >
-                      {meeting.title}
-                    </h3>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 14,
-                        flexWrap: "wrap",
-                        color: "var(--text-secondary)",
-                        fontSize: 13,
-                      }}
-                    >
-                      <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                        <Clock size={14} />
-                        {new Date(meeting.scheduledAt).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </span>
-                      <span>Hosted by {(meeting.host as unknown as { name: string })?.name}</span>
-                    </div>
-                  </div>
-                  <Link href={`/meeting/${meeting._id}`} className="btn btn-primary btn-sm">
-                    Join room
-                  </Link>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-
-        <aside>
-          <CalendarWidget meetingDates={upcomingMeetings.map((item) => new Date(item.scheduledAt))} />
-
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <Link
-              href="/discover"
-              className="card"
-              style={{
-                padding: 18,
-                display: "flex",
-                alignItems: "center",
-                gap: 14,
-                textDecoration: "none",
-              }}
-            >
-              <div
-                style={{
-                  width: 42,
-                  height: 42,
-                  borderRadius: 16,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background: "rgba(132, 240, 184, 0.16)",
-                }}
-              >
-                <Compass size={18} color="var(--accent)" />
-              </div>
-              <div style={{ flex: 1 }}>
-                <p style={{ fontWeight: 700, marginBottom: 4 }}>Discover communities</p>
-                <p style={{ color: "var(--text-secondary)", fontSize: 13 }}>
-                  Find your next room to join.
-                </p>
-              </div>
-              <ArrowRight size={16} />
-            </Link>
-
-            {!user.createdCommunity && (
-              <Link
-                href="/discover?create=true"
                 className="card"
                 style={{
-                  padding: 18,
+                  padding: "48px 24px",
                   display: "flex",
+                  flexDirection: "column",
                   alignItems: "center",
-                  gap: 14,
-                  textDecoration: "none",
+                  justifyContent: "center",
+                  background: "var(--bg-secondary)",
+                  textAlign: "center",
+                  gap: 16,
                 }}
               >
                 <div
                   style={{
-                    width: 42,
-                    height: 42,
-                    borderRadius: 16,
+                    width: 48,
+                    height: 48,
+                    borderRadius: 12,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    background: "rgba(245, 184, 109, 0.16)",
+                    background: "var(--bg-tertiary)",
+                    color: "var(--text-muted)"
                   }}
                 >
-                  <Plus size={18} color="var(--accent-warm)" />
+                  <Video size={20} />
                 </div>
-                <div style={{ flex: 1 }}>
-                  <p style={{ fontWeight: 700, marginBottom: 4 }}>Create a community</p>
-                  <p style={{ color: "var(--text-secondary)", fontSize: 13 }}>
-                    Start your own growth space.
-                  </p>
+                <div>
+                  <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 4 }}>No upcoming sessions</h3>
+                  <p style={{ color: "var(--text-secondary)", fontSize: 13 }}>Join a community to see scheduled rooms here.</p>
                 </div>
-                <ArrowRight size={16} />
-              </Link>
+                <Link href="/discover" className="btn btn-primary btn-sm">
+                  Explore Communities
+                </Link>
+              </div>
+            ) : (
+              upcomingMeetings.map((meeting: any) => (
+                <div
+                  key={String(meeting._id)}
+                  className="card"
+                  style={{
+                    padding: "16px 20px",
+                    display: "grid",
+                    gridTemplateColumns: "1fr auto",
+                    alignItems: "center",
+                    gap: 20,
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                    <div
+                      style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: 10,
+                        background: "var(--bg-tertiary)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 14,
+                        fontWeight: 600,
+                        color: "var(--text-primary)",
+                        flexShrink: 0
+                      }}
+                    >
+                      {meeting.community.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <h4 style={{ fontSize: 14, fontWeight: 600, marginBottom: 2 }}>{meeting.title}</h4>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--text-muted)", fontSize: 12 }}>
+                        <span>{meeting.community.name}</span>
+                        <span>•</span>
+                        <span>{new Date(meeting.scheduledAt).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <Link
+                    href={`/community/${meeting.community._id}?room=${meeting._id}`}
+                    className="btn btn-secondary btn-sm"
+                  >
+                    Details
+                  </Link>
+                </div>
+              ))
             )}
+          </div>
+        </section>
 
-            <Link
-              href="/leaderboard"
-              className="card"
+        <aside style={{ display: "grid", gap: 32 }}>
+          <section>
+            <CalendarWidget meetingDates={upcomingMeetings.map(m => new Date(m.scheduledAt))} />
+          </section>
+
+          <section>
+            <div
               style={{
-                padding: 18,
                 display: "flex",
                 alignItems: "center",
-                gap: 14,
-                textDecoration: "none",
+                justifyContent: "space-between",
+                marginBottom: 20,
               }}
             >
-              <div
-                style={{
-                  width: 42,
-                  height: 42,
-                  borderRadius: 16,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background: "rgba(109, 184, 255, 0.16)",
-                }}
-              >
-                <Trophy size={18} color="var(--info)" />
+              <h2 style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.02em" }}>Recent Activity</h2>
+            </div>
+            <div className="card" style={{ padding: "20px", background: "var(--bg-secondary)" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                {user.joinedCommunities?.length > 0 ? (
+                  user.joinedCommunities.slice(0, 3).map((community: any) => (
+                    <div key={community._id} style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                      <div style={{ width: 6, height: 6, borderRadius: 100, background: "var(--success)" }} />
+                      <p style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                        Joined <span style={{ color: "var(--text-primary)", fontWeight: 500 }}>{community.name}</span>
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <p style={{ fontSize: 12, color: "var(--text-muted)" }}>No recent activity.</p>
+                )}
               </div>
-              <div style={{ flex: 1 }}>
-                <p style={{ fontWeight: 700, marginBottom: 4 }}>See the leaderboard</p>
-                <p style={{ color: "var(--text-secondary)", fontSize: 13 }}>
-                  Track the most active members.
-                </p>
-              </div>
-              <ArrowRight size={16} />
-            </Link>
-          </div>
+            </div>
+          </section>
+
+          <section>
+            <div className="card" style={{ background: "var(--bg-tertiary)", border: "none", padding: 24 }}>
+              <h3 style={{ fontSize: 15, fontWeight: 600, marginBottom: 16 }}>Weekly Insights</h3>
+              <SparklineChart scores={[68, 72, 70, 75, 78, 82]} />
+              <p style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 16, lineHeight: 1.5 }}>
+                Your speaking presence is up by 12% compared to last week. Keep it up!
+              </p>
+            </div>
+          </section>
         </aside>
       </div>
     </div>
