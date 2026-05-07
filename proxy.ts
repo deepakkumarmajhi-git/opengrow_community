@@ -5,7 +5,7 @@ import { jwtVerify } from "jose";
 const protectedRoutes = ["/dashboard", "/discover", "/leaderboard", "/profile", "/community", "/meeting"];
 const authRoutes = ["/login", "/signup"];
 
-export default async function middleware(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const isProtectedRoute = protectedRoutes.some((route) =>
     path.startsWith(route)

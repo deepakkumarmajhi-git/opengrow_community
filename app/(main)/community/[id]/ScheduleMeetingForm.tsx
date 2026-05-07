@@ -167,35 +167,6 @@ export default function ScheduleMeetingForm({
         </div>
       </form>
 
-      <style jsx>{`
-        .label-minimal {
-          display: block;
-          font-size: 11px;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-          color: var(--text-muted);
-          margin-bottom: 8px;
-        }
-        .input-minimal {
-          width: 100%;
-          background: none;
-          border: none;
-          border-bottom: 1px solid var(--border-primary);
-          padding: 8px 0;
-          color: var(--text-primary);
-          font-size: 15px;
-          outline: none;
-          transition: border-color 0.3s;
-        }
-        .input-minimal:focus {
-          border-color: var(--accent);
-        }
-        select.input-minimal {
-          cursor: pointer;
-          appearance: none;
-        }
-      `}</style>
     </div>
   );
 }
