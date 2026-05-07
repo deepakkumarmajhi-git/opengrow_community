@@ -18,7 +18,7 @@ interface SidebarProps {
     email: string;
     role: string;
     points: number;
-    communities?: any[];
+    communities?: Array<{ _id: string; name: string }>;
   };
 }
 

@@ -41,8 +41,9 @@ export default function MeetingReportPage() {
         }
         const data = await res.json();
         setReport(data.report);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Failed to load report";
+        setError(message);
       } finally {
         setLoading(false);
       }

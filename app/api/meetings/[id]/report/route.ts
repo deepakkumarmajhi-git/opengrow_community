@@ -52,8 +52,8 @@ export async function GET(
     }
 
     // Check if user attended the meeting
-    const attended = meeting.attendees.some(
-      (a: any) => a.toString() === session.userId
+    const attended = (meeting.attendees as unknown as Array<{ toString(): string }>).some(
+      (a) => a.toString() === session.userId
     );
     
     // We allow host or attendees to see their report.
@@ -65,7 +65,7 @@ export async function GET(
       );
     }
 
-    let report = await MeetingReport.findOne({
+    const report = await MeetingReport.findOne({
       meetingId,
       userId: session.userId,
     }).lean();

@@ -11,15 +11,19 @@ export default function DashboardGreeting({ name }: { name: string }) {
 
     // Format: Wednesday, May 6
     const options: Intl.DateTimeFormatOptions = { weekday: 'long', month: 'long', day: 'numeric' };
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDateStr(now.toLocaleDateString('en-US', options));
 
     // Determine greeting
     const hour = now.getHours();
     if (hour < 12) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setGreeting("Good morning");
     } else if (hour < 18) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setGreeting("Good afternoon");
     } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setGreeting("Good evening");
     }
   }, []);

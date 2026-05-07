@@ -270,7 +270,13 @@ export default async function CommunityPage({
                 </h3>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                   {pastMeetings.slice(0, 4).map((meeting) => {
-                    const didAttend = meeting.attendees?.some((a: any) => String(a) === session.userId) || String(meeting.host?._id || meeting.host) === session.userId;
+                    const didAttend =
+                      (meeting.attendees as unknown as Array<{ toString(): string }> | undefined)?.some(
+                        (a) => a.toString() === session.userId
+                      ) ||
+                      String(
+                        (meeting.host as unknown as { _id?: unknown })?._id ?? meeting.host
+                      ) === session.userId;
                     return (
                       <div
                         key={String(meeting._id)}

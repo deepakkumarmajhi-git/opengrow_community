@@ -173,7 +173,7 @@ export default async function DashboardPage() {
                 Your Calendar is Clear
               </h3>
               <p style={{ fontSize: 14, color: "var(--text-muted)", marginBottom: 24, maxWidth: 300 }}>
-                You don't have any upcoming meetings. Join a new community to start practicing!
+                You don&apos;t have any upcoming meetings. Join a new community to start practicing!
               </p>
               <Link href="/discover" className="btn btn-secondary">
                 <Compass size={16} />

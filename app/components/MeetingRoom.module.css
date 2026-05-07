@@ -1,0 +1,403 @@
+.centerScreen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--bg-primary);
+}
+
+.messagePanel {
+  width: min(560px, 100%);
+  padding: 32px;
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  text-align: center;
+}
+
+.messageTitle,
+.dangerTitle {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.dangerTitle {
+  color: var(--danger);
+}
+
+.messageText,
+.helperText {
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.helperText {
+  margin: 16px auto 0;
+  max-width: 460px;
+  font-size: 13px;
+}
+
+.helperText strong {
+  color: var(--text-primary);
+}
+
+.messageActions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+
+.previewShell {
+  min-height: 100vh;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent 34%),
+    var(--bg-primary);
+  padding: 28px;
+}
+
+.previewHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 1180px;
+  margin: 0 auto 48px;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.backLink:hover {
+  color: var(--text-primary);
+}
+
+.previewMeta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.previewMeta span + span::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  margin-right: 10px;
+  border-radius: 999px;
+  background: var(--border-secondary);
+  vertical-align: middle;
+}
+
+.previewGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(360px, 520px);
+  gap: 44px;
+  align-items: center;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.previewCopy {
+  max-width: 640px;
+}
+
+.kicker {
+  display: inline-flex;
+  margin-bottom: 14px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.previewCopy h1 {
+  margin-bottom: 18px;
+  font-size: clamp(34px, 6vw, 64px);
+  font-weight: 850;
+  line-height: 0.96;
+}
+
+.previewCopy p {
+  max-width: 560px;
+  color: var(--text-secondary);
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+.topicRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 26px;
+}
+
+.topicRow span {
+  padding: 8px 12px;
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  background: var(--bg-card);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.prejoinCard {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border-secondary);
+  border-radius: var(--radius-md);
+  background: #111113;
+  box-shadow: var(--shadow-lg);
+}
+
+.prejoinCard :global(.lk-prejoin) {
+  min-height: 580px;
+}
+
+.prejoinCard :global(.lk-button) {
+  border-radius: var(--radius-sm);
+}
+
+.joiningOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(10, 10, 10, 0.72);
+  color: white;
+  font-weight: 700;
+}
+
+.meetingShell {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #080808;
+  color: white;
+}
+
+.minimized {
+  inset: auto 20px 20px auto;
+  width: min(420px, calc(100vw - 32px));
+  height: 280px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+}
+
+.meetingHeader {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 20px;
+  border-bottom: 1px solid #202020;
+  background: rgba(15, 15, 15, 0.98);
+}
+
+.meetingTitleBlock {
+  min-width: 0;
+}
+
+.meetingTitleBlock h2 {
+  overflow: hidden;
+  margin-bottom: 4px;
+  font-size: 16px;
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meetingTitleBlock div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  color: #a1a1aa;
+  font-size: 12px;
+}
+
+.meetingTitleBlock span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meetingTitleBlock span + span::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  margin-right: 8px;
+  border-radius: 999px;
+  background: #444;
+  vertical-align: middle;
+}
+
+.meetingActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.iconButton,
+.leaveButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 38px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.07);
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.iconButton {
+  width: 38px;
+}
+
+.iconButton:hover,
+.leaveButton:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.leaveButton {
+  padding: 0 14px;
+  background: rgba(255, 77, 77, 0.14);
+  border-color: rgba(255, 77, 77, 0.36);
+  color: #ffd4d4;
+}
+
+.leaveButton:hover {
+  background: rgba(255, 77, 77, 0.24);
+}
+
+.inlineError {
+  max-width: 240px;
+  overflow: hidden;
+  color: #fca5a5;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.roomStage {
+  flex: 1;
+  min-height: 0;
+}
+
+.minimized .meetingHeader {
+  min-height: 52px;
+  padding: 0 10px 0 14px;
+}
+
+.minimized .meetingTitleBlock h2 {
+  font-size: 13px;
+}
+
+.minimized .meetingTitleBlock div {
+  display: none;
+}
+
+.minimized .roomStage {
+  height: 228px;
+}
+
+.minimized :global(.lk-control-bar),
+.minimized :global(.lk-chat),
+.minimized :global(.lk-participant-metadata),
+.minimized :global(.lk-focus-toggle-button) {
+  display: none;
+}
+
+.meetingShell :global(.lk-room-container),
+.meetingShell :global(.lk-video-conference) {
+  height: 100%;
+  background: #080808;
+}
+
+@media (max-width: 900px) {
+  .previewGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .previewCopy {
+    max-width: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .previewShell {
+    padding: 18px;
+  }
+
+  .previewHeader {
+    align-items: flex-start;
+    flex-direction: column;
+    margin-bottom: 28px;
+  }
+
+  .previewMeta {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .previewMeta span + span::before {
+    display: none;
+  }
+
+  .prejoinCard :global(.lk-prejoin) {
+    min-height: 520px;
+  }
+
+  .meetingHeader {
+    min-height: auto;
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 12px;
+  }
+
+  .meetingActions {
+    width: 100%;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .inlineError {
+    width: 100%;
+    max-width: none;
+  }
+
+  .leaveButton {
+    flex: 1;
+  }
+}

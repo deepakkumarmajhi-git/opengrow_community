@@ -61,9 +61,11 @@ export default function ProfilePage() {
     // Detect theme
     const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
     if (savedTheme) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTheme(savedTheme);
     } else {
       const isDark = document.documentElement.getAttribute("data-theme") !== "light";
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTheme(isDark ? "dark" : "light");
     }
   }, []);

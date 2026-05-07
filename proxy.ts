@@ -18,6 +18,12 @@ export default async function proxy(request: NextRequest) {
   if (sessionCookie) {
     try {
       const secretKey = process.env.SESSION_SECRET;
+      if (!secretKey) {
+        return NextResponse.json(
+          { error: "Server misconfigured: SESSION_SECRET missing" },
+          { status: 500 }
+        );
+      }
       const encodedKey = new TextEncoder().encode(secretKey);
       await jwtVerify(sessionCookie, encodedKey, { algorithms: ["HS256"] });
       isAuthenticated = true;

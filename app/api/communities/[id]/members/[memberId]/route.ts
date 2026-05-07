@@ -40,7 +40,7 @@ export async function DELETE(
 
     // Remove member from the community document
     community.members = community.members.filter(
-      (m: any) => m.toString() !== memberId
+      (m: unknown) => String(m) !== memberId
     );
     await community.save();
 

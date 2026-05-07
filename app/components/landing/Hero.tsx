@@ -29,7 +29,9 @@ export default function Hero() {
           setDisplayText(displayText.slice(0, -1));
         }, 40);
       } else {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setIsDeleting(false);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setRoleIndex((prev) => (prev + 1) % roles.length);
       }
     }

@@ -37,7 +37,7 @@ export async function PUT(request: Request) {
     const { name, bio, avatar } = await request.json();
 
     await connectDB();
-    const updateData: any = {
+    const updateData: { name?: string; bio?: string; avatar?: string } = {
       name: name?.trim().slice(0, 50),
       bio: bio?.trim().slice(0, 300),
     };
