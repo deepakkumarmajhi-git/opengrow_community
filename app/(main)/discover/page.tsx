@@ -230,13 +230,13 @@ export default function DiscoverPage() {
             return (
               <div
                 key={community._id}
-                className="card card-discover-gradient"
+                className="card"
                 style={{
                   padding: 24,
                   display: "flex",
                   flexDirection: "column",
                   gap: 20,
-                  borderRadius: 8,
+                  transition: "border-color 0.2s"
                 }}
               >
                 <div style={{ flex: 1 }}>
@@ -248,11 +248,11 @@ export default function DiscoverPage() {
                       marginBottom: 16,
                     }}
                   >
-                    <span 
-                      style={{ 
-                        fontSize: 10, 
-                        fontWeight: 700, 
-                        textTransform: "uppercase", 
+                    <span
+                      style={{
+                        fontSize: 10,
+                        fontWeight: 700,
+                        textTransform: "uppercase",
                         letterSpacing: "0.05em",
                         color: "var(--text-muted)",
                         background: "var(--bg-tertiary)",
@@ -268,10 +268,10 @@ export default function DiscoverPage() {
                   </div>
 
                   <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>{community.name}</h3>
-                  <p 
-                    style={{ 
-                      color: "var(--text-secondary)", 
-                      fontSize: 13, 
+                  <p
+                    style={{
+                      color: "var(--text-secondary)",
+                      fontSize: 13,
                       lineHeight: 1.5,
                       display: "-webkit-box",
                       WebkitLineClamp: 2,
@@ -284,8 +284,8 @@ export default function DiscoverPage() {
                 </div>
 
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, paddingTop: 16, borderTop: "1px solid var(--border-primary)" }}>
-                  <Link 
-                    href={`/community/${community._id}`} 
+                  <Link
+                    href={`/community/${community._id}`}
                     style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)", display: "flex", alignItems: "center", gap: 4 }}
                   >
                     Details
@@ -373,7 +373,7 @@ export default function DiscoverPage() {
                   <option value="general">General</option>
                 </select>
               </div>
-              
+
               <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
                 <button type="submit" disabled={creating} className="btn btn-primary" style={{ flex: 1 }}>
                   {creating ? "Creating..." : "Create space"}
