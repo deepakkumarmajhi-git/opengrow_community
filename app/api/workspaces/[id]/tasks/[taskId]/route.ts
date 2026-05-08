@@ -38,7 +38,7 @@ export async function PUT(
     }
 
     const taskIndex = workspace.tasks.findIndex(
-      (task) => task._id.toString() === taskId
+      (task: any) => task._id.toString() === taskId
     );
 
     if (taskIndex === -1) {
@@ -93,7 +93,7 @@ export async function DELETE(
     }
 
     const taskIndex = workspace.tasks.findIndex(
-      (task) => task._id.toString() === taskId
+      (task: any) => task._id.toString() === taskId
     );
 
     if (taskIndex === -1) {
