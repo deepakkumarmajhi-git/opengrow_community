@@ -6,9 +6,10 @@ import User from "@/lib/models/User";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -17,7 +18,7 @@ export async function GET(
     await connectDB();
 
     const workspace = await Workspace.findOne({
-      _id: params.id,
+      _id: id,
       owner: session.userId,
     });
 
@@ -40,9 +41,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -60,7 +62,7 @@ export async function PUT(
     await connectDB();
 
     const workspace = await Workspace.findOneAndUpdate(
-      { _id: params.id, owner: session.userId },
+      { _id: id, owner: session.userId },
       {
         name: name.trim(),
         description: description?.trim() || "",
@@ -87,9 +89,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -98,7 +101,7 @@ export async function DELETE(
     await connectDB();
 
     const workspace = await Workspace.findOneAndDelete({
-      _id: params.id,
+      _id: id,
       owner: session.userId,
     });
 
@@ -111,7 +114,7 @@ export async function DELETE(
 
     // Remove workspace from user's workspaces array
     await User.findByIdAndUpdate(session.userId, {
-      $pull: { workspaces: params.id },
+      $pull: { workspaces: id },
     });
 
     return NextResponse.json({ message: "Workspace deleted successfully" });
