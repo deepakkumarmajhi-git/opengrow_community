@@ -102,6 +102,9 @@ const CommunitySchema = new Schema<ICommunity>(
   }
 );
 
+CommunitySchema.index({ members: 1 });
+CommunitySchema.index({ category: 1 });
+
 const Community =
   mongoose.models.Community ||
   mongoose.model<ICommunity>("Community", CommunitySchema);

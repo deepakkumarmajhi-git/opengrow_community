@@ -80,5 +80,7 @@ const WorkspaceSchema = new Schema<IWorkspace>(
   }
 );
 
+WorkspaceSchema.index({ owner: 1 });
+
 const Workspace = mongoose.models.Workspace || mongoose.model<IWorkspace>("Workspace", WorkspaceSchema);
 export default Workspace;

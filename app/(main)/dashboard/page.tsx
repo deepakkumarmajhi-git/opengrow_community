@@ -24,8 +24,9 @@ export default async function DashboardPage() {
 
   await connectDB();
   const user = await User.findById(session.userId)
-    .populate({ path: "joinedCommunities", model: Community })
-    .populate({ path: "createdCommunity", model: Community });
+    .populate({ path: "joinedCommunities", model: Community, select: "name _id" })
+    .populate({ path: "createdCommunity", model: Community, select: "name _id" })
+    .lean();
 
   if (!user) redirect("/login");
 
