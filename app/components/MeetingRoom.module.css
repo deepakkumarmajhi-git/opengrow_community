@@ -53,7 +53,7 @@
 }
 
 .previewShell {
-  min-height: 100vh;
+  min-height: 100dvh;
   background: var(--bg-primary);
   padding: 28px;
   overflow-x: hidden;
@@ -128,9 +128,10 @@
 
 .previewCopy h1 {
   margin-bottom: 18px;
-  font-size: clamp(34px, 6vw, 64px);
+  font-size: clamp(34px, 5vw, 64px);
   font-weight: 850;
-  line-height: 0.96;
+  line-height: 1;
+  overflow-wrap: anywhere;
 }
 
 .previewCopy p {
@@ -175,12 +176,15 @@
 .prejoinCard :global(.lk-video-container),
 .prejoinCard :global(.lk-device-menu),
 .prejoinCard :global(.lk-button),
-.prejoinCard :global(input) {
+.prejoinCard :global(input),
+.prejoinCard :global(select) {
   max-width: 100%;
 }
 
 .prejoinCard :global(.lk-button) {
   border-radius: var(--radius-sm);
+  min-width: 0;
+  white-space: normal;
 }
 
 .joiningOverlay {
@@ -204,6 +208,13 @@
   overflow: hidden;
   background: var(--bg-primary);
   color: var(--text-primary);
+}
+
+.meetingShell :global(.lk-video-conference),
+.meetingShell :global(.lk-grid-layout),
+.meetingShell :global(.lk-focus-layout-wrapper),
+.meetingShell :global(.lk-control-bar) {
+  min-width: 0;
 }
 
 .minimized {
@@ -358,6 +369,29 @@
   background: #111;
 }
 
+@media (max-width: 1100px) {
+  .previewShell {
+    padding: 24px;
+  }
+
+  .previewHeader {
+    margin-bottom: 36px;
+  }
+
+  .previewGrid {
+    grid-template-columns: minmax(0, 1fr) minmax(340px, 440px);
+    gap: 32px;
+  }
+
+  .previewCopy h1 {
+    font-size: clamp(32px, 4.7vw, 54px);
+  }
+
+  .prejoinCard :global(.lk-prejoin) {
+    min-height: 540px;
+  }
+}
+
 @media (max-width: 900px) {
   .previewGrid {
     grid-template-columns: 1fr;
@@ -370,6 +404,10 @@
 
   .previewHeader {
     margin-bottom: 32px;
+  }
+
+  .prejoinCard {
+    width: min(100%, 560px);
   }
 }
 
@@ -437,6 +475,13 @@
     padding: 16px !important;
   }
 
+  .prejoinCard :global(.lk-button-group),
+  .prejoinCard :global(.lk-button-group-menu),
+  .prejoinCard :global(.lk-device-menu) {
+    width: 100%;
+    min-width: 0;
+  }
+
   .prejoinCard :global(.lk-video-container) {
     aspect-ratio: 4 / 3;
     min-height: 0;
@@ -469,7 +514,8 @@
   }
 
   .iconButton {
-    flex: 1 1 42px;
+    flex: 1 1 44px;
+    min-width: 44px;
   }
 
   .inlineError {
@@ -479,6 +525,18 @@
 
   .leaveButton {
     flex: 1;
+    min-width: 108px;
+  }
+
+  .meetingShell :global(.lk-control-bar) {
+    max-width: 100%;
+    overflow-x: auto;
+    justify-content: flex-start;
+    padding-inline: 8px;
+  }
+
+  .meetingShell :global(.lk-button) {
+    min-width: 40px;
   }
 
   .minimized {

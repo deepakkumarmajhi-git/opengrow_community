@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Compass, LayoutDashboard, Plus, Trophy, Hash, Sparkles } from "lucide-react";
+import { Compass, LayoutDashboard, Plus, Trophy, Hash, Sparkles, Briefcase } from "lucide-react";
 import NotificationBell from "@/app/components/NotificationBell";
 import UpgradeProModal from "@/app/components/UpgradeProModal";
 import { useState } from "react";
@@ -21,6 +21,7 @@ interface SidebarProps {
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/workspaces", label: "Workspaces", icon: Briefcase },
   { href: "/discover", label: "Discover", icon: Compass },
   { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
 ];

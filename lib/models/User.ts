@@ -15,6 +15,7 @@ export interface IUser extends Document {
   streak: number;
   lastActiveDate: Date | null;
   meetingsAttended: Types.ObjectId[];
+  workspaces: Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -79,6 +80,10 @@ const UserSchema = new Schema<IUser>(
     },
     meetingsAttended: {
       type: [{ type: Schema.Types.ObjectId, ref: "Meeting" }],
+      default: [],
+    },
+    workspaces: {
+      type: [{ type: Schema.Types.ObjectId, ref: "Workspace" }],
       default: [],
     },
   },
